@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem("ns_theme")==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Netsimon — Usuários</title>
+<link rel="icon" type="image/png" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/painel.css?v=19">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard.html" class="sidebar-logo" title="Início">
+      <div class="logo-icon"><img src="/img/logo.png" alt="Painel Netsimon"></div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="/dashboard.html" class="nav-item active" data-page="dashboard">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-home.png" alt="Início"></span><span>Início</span>
+      </a>
+      <a href="/usuarios.html" class="nav-item" data-page="usuarios">
+        <span class="nav-icon">👤</span><span>Usuários</span>
+      </a>
+      <a href="/todos-usuarios.html" class="nav-item" data-page="todos-usuarios">
+        <span class="nav-icon">👥</span><span>Todos os Usuários</span>
+      </a>
+      <a href="/revendedores.html" class="nav-item reseller-manage-only" data-page="revendedores">
+        <span class="nav-icon">🏪</span><span>Revendedores</span>
+      </a>
+      <a href="/dispositivos.html" class="nav-item" data-page="dispositivos">
+        <span class="nav-icon">📵</span><span>Dispositivos</span>
+      </a>
+      <a href="/xray.html" class="nav-item admin-only" data-page="xray">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-xray.png" alt="Xray"></span><span>Xray</span>
+      </a>
+      <a href="/servidores.html" class="nav-item admin-only" data-page="servidores">
+        <span class="nav-icon">🖧</span><span>Servidores</span>
+      </a>
+      <a href="/diagnostico.html" class="nav-item" data-page="diagnostico">
+        <span class="nav-icon">🛠️</span><span>Manutenção</span>
+      </a>
+      <a href="/whatsapp.html" class="nav-item" data-page="whatsapp">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-whatsapp.png" alt="Bot WhatsApp"></span><span>Bot WhatsApp</span>
+      </a>
+      <a href="/campanhas.html" class="nav-item" data-page="campanhas">
+        <span class="nav-icon">📣</span><span>Campanhas</span>
+      </a>
+      <a href="/app.html" class="nav-item" data-page="app">
+        <span class="nav-icon">📱</span><span>Aplicativo</span>
+      </a>
+      <a href="/backup.html" class="nav-item admin-only" data-page="backup">
+        <span class="nav-icon">💾</span><span>Backup</span>
+      </a>
+      <a href="/bot.html" class="nav-item admin-only" data-page="bot">
+        <span class="nav-icon">🤖</span><span>Bot Telegram</span>
+      </a>
+      <a href="/logs.html" class="nav-item admin-only" data-page="logs">
+        <span class="nav-icon">📋</span><span>Logs</span>
+      </a>
+      <a href="#" class="nav-item admin-only" data-page="terminal" onclick="openTerminal(); return false;">
+        <span class="nav-icon">🖥️</span><span>Terminal</span>
+      </a>
+      <a href="/ia.html" class="nav-item" data-page="ia">
+        <span class="nav-icon">✨</span><span>IA</span>
+      </a>
+      <!-- Item 4: menu novo, exclusivo do admin (não é recurso por revendedor). -->
+      <a href="/material.html" class="nav-item admin-only" data-page="material">
+        <span class="nav-icon">🗃️</span><span>Material</span>
+      </a>
+      <a href="/configuracoes.html" class="nav-item admin-only" data-page="config">
+        <span class="nav-icon">⚙️</span><span>Configurações</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">👑</span>
+        <div>
+          <div class="user-name" id="sidebar-username">–</div>
+          <div class="user-role" id="sidebar-role">–</div>
+        </div>
+      </div>
+      <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema" onclick="toggleTheme()">☀️</button>
+      <button class="btn-logout" id="btn-logout" title="Sair">⏻</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="burger" id="burger">☰</button>
+        <h1 class="page-title">Usuários</h1>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm admin-only" onclick="openModal('modal-test')">⚡ Teste</button>
+        <button class="btn btn-ghost btn-sm" onclick="createAutoTest()">🤖 Teste Automático</button>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-create')">+ Novo Usuário</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Filtros -->
+      <!-- Item: card com "overflow: visible" (classe própria) -- o
+           .card-panel padrão do painel.css tem "overflow: hidden" (pra
+           arredondar os cantos), o que cortava/escondia o menu ⚙ Opções
+           (position:absolute) atrás do card da tabela logo abaixo, já
+           que ele só existia visualmente dentro dos limites deste card. -->
+      <div class="card-panel card-panel-allow-overflow">
+        <div style="padding:12px 18px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+          <input type="text" id="filter-search" placeholder="🔍 Buscar usuário..." style="min-width:180px; max-width:220px; flex-shrink:0; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; padding:7px 12px; outline:none;">
+          <select id="filter-status" style="min-width:150px; flex-shrink:0; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; padding:7px 12px; outline:none;">
+            <option value="">Todos os status</option>
+            <option value="online">Online</option>
+            <option value="active">Ativos</option>
+            <option value="expired">Expirados</option>
+            <option value="blocked">Bloqueados</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" style="flex-shrink:0; white-space:nowrap;" onclick="loadUsers()">↻ Atualizar</button>
+          <button class="btn btn-danger btn-sm admin-only" style="flex-shrink:0; white-space:nowrap;" onclick="deleteExpired()">🗑 Excluir Expirados</button>
+          <!-- Item 2: "Excluir Selecionados" virou "Opções" — um menu com
+               as 5 ações em lote (exclusão continua existindo, + 4 novas). -->
+          <div class="bulk-options-wrap" style="position:relative; flex-shrink:0; display:none;" id="bulk-options-wrap">
+            <button class="btn btn-danger btn-sm" id="btn-bulk-options" onclick="toggleBulkMenu(event)">⚙ Opções (<span id="bulk-count">0</span>) ▾</button>
+            <div id="bulk-menu" style="display:none; position:absolute; top:calc(100% + 4px); left:0; z-index:500; background:var(--surface); border:1px solid var(--border); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.35); min-width:230px; overflow:hidden;">
+              <button class="bulk-menu-item" onclick="bulkAction('add_1_day')">➕ Adicionar 1 dia de acesso</button>
+              <button class="bulk-menu-item" onclick="bulkAction('add_30_days')">📅 Adicionar 30 dias</button>
+              <button class="bulk-menu-item" onclick="bulkAction('unblock')">🔓 Desbloquear</button>
+              <button class="bulk-menu-item" onclick="bulkAction('suspend')">⛔ Suspender</button>
+              <button class="bulk-menu-item bulk-menu-item-danger" onclick="bulkDeleteSelected()">🗑 Excluir selecionados</button>
+            </div>
+          </div>
+          <span class="text-muted" id="user-count" style="margin-left:auto; font-size:12px; flex-shrink:0;">–</span>
+        </div>
+      </div>
+
+      <style>
+        /* Item: sobrescreve só o "overflow: hidden" herdado de .card-panel
+           pra este card específico (o dropdown ⚙ Opções precisa poder
+           extrapolar a borda inferior dele). Especificidade de 2 classes
+           garante a prioridade sobre a regra genérica do painel.css,
+           venha ela antes ou depois no CSS. Não mexe no .card-panel
+           genérico -- os demais cards do painel continuam com os cantos
+           arredondados clipados normalmente. */
+        .card-panel.card-panel-allow-overflow { overflow: visible; }
+        .bulk-menu-item {
+          display: block; width: 100%; text-align: left; padding: 10px 14px;
+          background: none; border: none; color: var(--text); font-size: 13px;
+          cursor: pointer; border-bottom: 1px solid var(--border);
+        }
+        .bulk-menu-item:last-child { border-bottom: none; }
+        .bulk-menu-item:hover { background: var(--surface2); }
+        .bulk-menu-item-danger { color: #ef4444; }
+      </style>
+
+      <!-- Tabela -->
+      <div class="card-panel" style="flex-shrink:0;">
+        <div class="table-wrap">
+          <table id="users-table">
+            <thead>
+              <tr>
+                <th style="width:32px"><input type="checkbox" id="chk-all" onchange="toggleSelectAll(this)"></th>
+                <th class="th-sort" data-sort="login">Usuário <span class="sort-arrow"></span></th>
+                <th class="th-sort" data-sort="criado_por">Criado por <span class="sort-arrow"></span></th>
+                <th class="th-sort" data-sort="status">Status <span class="sort-arrow"></span></th>
+                <th class="th-sort" data-sort="expira">Expiração <span class="sort-arrow"></span></th>
+                <th>Limite</th>
+                <th>Online há</th>
+                <th>UUID</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr><td colspan="9" style="text-align:center; padding:32px; color:var(--muted);">Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal: Criar Usuário -->
+<div class="modal-overlay" id="modal-create">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">➕ Novo Usuário</span>
+      <button class="modal-close" onclick="closeModal('modal-create')">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <div class="form-field">
+          <label>Usuário</label>
+          <input type="text" id="c-login" placeholder="ex: joao123">
+        </div>
+        <div class="form-field">
+          <label>Senha</label>
+          <input type="text" id="c-senha" placeholder="ex: 1234">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Dias de Validade</label>
+          <input type="number" id="c-dias" value="30" min="1">
+        </div>
+        <div class="form-field">
+          <label>Limite de Conexões</label>
+          <input type="number" id="c-limite" value="1" min="1">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-create')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-criar" onclick="createUser()">Criar Usuário</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Criar Teste -->
+<div class="modal-overlay" id="modal-test">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">⚡ Conta de Teste</span>
+      <button class="modal-close" onclick="closeModal('modal-test')">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <div class="form-field">
+          <label>Usuário (vazio = aleatório)</label>
+          <input type="text" id="t-login" placeholder="opcional">
+        </div>
+        <div class="form-field">
+          <label>Senha</label>
+          <input type="text" id="t-senha" value="123">
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Duração (minutos)</label>
+        <select id="t-minutos">
+          <option value="60">60 min (1 hora)</option>
+          <option value="120">120 min (2 horas)</option>
+          <option value="180">180 min (3 horas)</option>
+          <option value="360">360 min (6 horas)</option>
+          <option value="1440">1440 min (1 dia)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-test')">Cancelar</button>
+      <button class="btn btn-primary" onclick="createTest()">Criar Teste</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Foto -->
+<div class="modal-overlay" id="modal-photo">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">📸 Foto do Usuário</span>
+      <button class="modal-close" onclick="closeModal('modal-photo')">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="text-sm text-muted">Usuário: <strong class="text-mono" id="ph-login"></strong></div>
+      <div style="display:flex; justify-content:center; padding:12px 0;">
+        <img id="ph-preview" src="" alt="" style="display:none; max-width:180px; max-height:180px; border-radius:12px; object-fit:cover;">
+      </div>
+      <div class="form-field">
+        <label>Selecionar imagem (JPG, PNG ou WEBP, máx 2 MB)</label>
+        <input type="file" id="ph-file" accept="image/jpeg,image/png,image/webp">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="ph-remove-btn" style="display:none; margin-right:auto;" onclick="removePhoto()">🗑 Remover Foto</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-photo')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmUploadPhoto()">Salvar Foto</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Acesso do Usuário (unificado — usado ao criar teste, criar mensal e no botão "Link") -->
+<div class="modal-overlay" id="modal-access">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header">
+      <span class="modal-title" id="access-title">🔗 Acesso do Usuário</span>
+      <button class="modal-close" onclick="closeModal('modal-access')">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="card-panel" style="padding:14px 16px">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px">
+          <span class="text-sm text-muted" style="font-weight:600">🔑 Dados da Conta</span>
+          <button class="btn btn-ghost btn-sm" onclick="copyAccessBasic()">📋 Copiar Dados</button>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Nome</label>
+            <input type="text" id="a-nome" readonly>
+          </div>
+          <div class="form-field">
+            <label>Senha (apenas clientes vivo)</label>
+            <input type="text" id="a-senha">
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:20px">
+          <div class="form-field">
+            <label>Validade</label>
+            <input type="text" id="a-validade" placeholder="AAAA-MM-DD HH:MM:SS">
+          </div>
+          <div class="form-field">
+            <label>Limite</label>
+            <input type="number" id="a-limite" min="1">
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:20px">
+          <div class="form-field">
+            <label>📱 WhatsApp do cliente (com DDI+DDD, só números)</label>
+            <input type="text" id="a-whatsapp" placeholder="ex: 5511999999999">
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel" style="padding:14px 16px; border-color:rgba(168,85,247,.35)">
+        <div style="font-weight:600; margin-bottom:10px">🔑 Chave de Acesso</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="a-chave" style="font-family:monospace;font-size:13px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--accent);padding:10px 12px;flex:1;font-weight:600">
+          <button class="btn btn-ghost btn-sm" onclick="copyText(document.getElementById('a-chave').value)">📋 Copiar</button>
+        </div>
+      </div>
+
+      <div class="card-panel" style="padding:14px 16px">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px">
+          <span style="font-weight:600">📱 Aplicativo e Tutoriais</span>
+          <a href="/configuracoes.html" class="text-sm" style="color:var(--accent)">Editar em Configurações →</a>
+        </div>
+        <div class="text-sm text-muted" id="a-links-preview">Carregando…</div>
+      </div>
+
+      <div class="text-sm text-muted" style="margin-top:4px">Escolha o que enviar ao cliente:</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick="copyAccessFull()">📋 Copiar Tudo</button>
+        <button class="btn btn-ghost btn-sm" onclick="copyText(document.getElementById('a-chave').value)">🔑 Só a Chave</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-access')">Fechar</button>
+      <button class="btn btn-primary" id="btn-salvar-access" onclick="saveAccessModal()">💾 Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/painel.js"></script>
+<script>
+let _allUsers = [];
+let _sortKey = null;
+let _sortDir = 1;
+let _selected = new Set();
+let _globalAppLinks = {};
+
+function fmtDuration(sec) {
+  if (!sec) return "–";
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  return h > 0 ? `${h}h${String(m).padStart(2,"0")}min` : `${m}min`;
+}
+
+async function loadUsers() {
+  const data = await api("/users");
+  if (!data) return;
+  _allUsers = data;
+  renderUsers();
+}
+
+function sortUsers(list) {
+  if (!_sortKey) return list;
+  const sorted = [...list].sort((a, b) => {
+    let va, vb;
+    if (_sortKey === "status") {
+      const rank = u => u.blocked ? 3 : u.expired ? 2 : u.online ? 1 : 0;
+      va = rank(a); vb = rank(b);
+    } else if (_sortKey === "expira") {
+      va = a.expira || ""; vb = b.expira || "";
+    } else {
+      va = (a[_sortKey] || "").toString().toLowerCase();
+      vb = (b[_sortKey] || "").toString().toLowerCase();
+    }
+    if (va < vb) return -1 * _sortDir;
+    if (va > vb) return 1 * _sortDir;
+    return 0;
+  });
+  return sorted;
+}
+
+document.querySelectorAll(".th-sort").forEach(th => {
+  th.style.cursor = "pointer";
+  th.addEventListener("click", () => {
+    const key = th.dataset.sort;
+    if (_sortKey === key) { _sortDir *= -1; } else { _sortKey = key; _sortDir = 1; }
+    document.querySelectorAll(".th-sort .sort-arrow").forEach(a => a.textContent = "");
+    th.querySelector(".sort-arrow").textContent = _sortDir === 1 ? "▲" : "▼";
+    renderUsers();
+  });
+});
+
+function renderUsers() {
+  const search = document.getElementById("filter-search").value.toLowerCase();
+  const status = document.getElementById("filter-status").value;
+
+  let list = _allUsers.filter(u => {
+    if (search && !u.login.toLowerCase().includes(search)) return false;
+    if (status === "online"   && !u.online)   return false;
+    if (status === "expired"  && !u.expired)  return false;
+    if (status === "blocked"  && !u.blocked)  return false;
+    if (status === "active"   && (u.expired || u.blocked)) return false;
+    return true;
+  });
+
+  list = sortUsers(list);
+
+  document.getElementById("user-count").textContent = `${list.length} usuário(s)`;
+
+  const tbody = document.getElementById("users-tbody");
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--muted)">Nenhum usuário encontrado</td></tr>`;
+    updateBulkBar();
+    return;
+  }
+
+  tbody.innerHTML = list.map(u => {
+    const statusBadge = u.blocked
+      ? `<span class="badge badge-danger">Bloqueado</span>`
+      : u.expired
+        ? `<span class="badge badge-warn">Expirado</span>`
+        : u.online
+          ? `<span class="badge badge-success">Online</span>`
+          : `<span class="badge badge-muted">Ativo</span>`;
+
+    const uuid_short = u.uuid ? u.uuid.substring(0, 8) + "…" : "–";
+    const exp = fmtDate(u.expira);
+    const checked = _selected.has(u.login) ? "checked" : "";
+    const criador = u.criado_por || "admin";
+    const avatarThumb = u.foto_url
+      ? `<img src="${u.foto_url}?v=${Date.now()}" class="user-avatar-thumb" alt="" onclick="openPhotoModal('${u.login}', '${u.foto_url}')" style="cursor:pointer">`
+      : `<span class="user-avatar-thumb user-avatar-thumb-empty" onclick="openPhotoModal('${u.login}', null)" style="cursor:pointer" title="Adicionar foto">👤</span>`;
+
+    return `<tr>
+      <td><input type="checkbox" class="chk-user" data-login="${u.login}" ${checked} onchange="toggleSelectOne(this)"></td>
+      <td style="display:flex; align-items:center; gap:8px;">${avatarThumb}<strong class="text-mono">${u.login}</strong></td>
+      <td class="text-sm text-muted">${criador}</td>
+      <td>${statusBadge}</td>
+      <td class="text-sm ${u.expired ? 'text-muted' : ''}">${exp}</td>
+      <td>${u.limite}</td>
+      <td class="text-sm">${u.online ? fmtDuration(u.online_seconds) : "–"}</td>
+      <td>
+        <span class="text-mono text-sm" title="${u.uuid}">${uuid_short}</span>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="copyText('${u.uuid}')" title="Copiar UUID">📋</button>
+      </td>
+      <td style="display:flex; gap:6px; flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="renovarUsuario('${u.login}')" title="Renovar +30 dias (desbloqueia se estiver bloqueado)">♻️</button>
+        ${u.blocked
+          ? ""
+          : `<button class="btn btn-ghost btn-sm btn-icon" onclick="suspenderUsuario('${u.login}')" title="Suspender agora (corta o acesso imediatamente)">⛔</button>`}
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="showDetails('${u.login}')" title="Editar / opções do usuário">✏️</button>
+        ${u.blocked
+          ? `<button class="btn btn-ghost btn-sm" onclick="unblockUser('${u.login}')" title="Desbloquear usuário">🔓</button>`
+          : ""}
+        <button class="btn btn-danger btn-sm" onclick="deleteUser('${u.login}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join("");
+
+  // Reaplica visibilidade admin-only
+  if (getRole() !== "admin") {
+    document.querySelectorAll(".admin-only").forEach(el => el.style.display = "none");
+  }
+  updateBulkBar();
+}
+
+// ── Item 7: seleção múltipla e exclusão em lote ─────────────────────
+function toggleSelectAll(box) {
+  document.querySelectorAll(".chk-user").forEach(c => {
+    c.checked = box.checked;
+    if (box.checked) _selected.add(c.dataset.login); else _selected.delete(c.dataset.login);
+  });
+  updateBulkBar();
+}
+
+function toggleSelectOne(box) {
+  if (box.checked) _selected.add(box.dataset.login); else _selected.delete(box.dataset.login);
+  const all = document.querySelectorAll(".chk-user");
+  document.getElementById("chk-all").checked = all.length > 0 && [...all].every(c => c.checked);
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  const wrap = document.getElementById("bulk-options-wrap");
+  document.getElementById("bulk-count").textContent = _selected.size;
+  wrap.style.display = _selected.size > 0 ? "" : "none";
+  if (_selected.size === 0) document.getElementById("bulk-menu").style.display = "none";
+}
+
+function toggleBulkMenu(ev) {
+  ev.stopPropagation();
+  const menu = document.getElementById("bulk-menu");
+  menu.style.display = menu.style.display === "none" ? "" : "none";
+}
+// Fecha o menu de opções ao clicar fora dele.
+document.addEventListener("click", (ev) => {
+  const menu = document.getElementById("bulk-menu");
+  const wrap = document.getElementById("bulk-options-wrap");
+  if (menu && menu.style.display !== "none" && wrap && !wrap.contains(ev.target)) {
+    menu.style.display = "none";
+  }
+});
+
+async function bulkDeleteSelected() {
+  const logins = [..._selected];
+  if (!logins.length) return;
+  document.getElementById("bulk-menu").style.display = "none";
+  if (!confirm2(`Remover ${logins.length} usuário(s) selecionado(s)?`)) return;
+  const r = await api("/users/bulk-delete", "POST", { logins });
+  if (!r) return;
+  toast(`${r.removed.length} usuário(s) removido(s)${r.failed.length ? `, ${r.failed.length} falharam` : ""}`);
+  _selected.clear();
+  loadUsers();
+}
+
+// ── Item 2: demais ações em lote (+1 dia, +30 dias, desbloquear, suspender) ──
+const BULK_ACTION_LABEL = {
+  add_1_day:  { pergunta: "Adicionar 1 dia (24h) de acesso",  feito: "receberam +1 dia" },
+  add_30_days:{ pergunta: "Adicionar 30 dias de acesso (e desbloquear se estiverem bloqueados)", feito: "receberam +30 dias" },
+  unblock:    { pergunta: "Desbloquear os usuários selecionados (expirados continuam bloqueados)", feito: "desbloqueados" },
+  suspend:    { pergunta: "Suspender AGORA os usuários selecionados (corta o acesso imediatamente)", feito: "suspensos" },
+};
+
+async function bulkAction(action) {
+  const logins = [..._selected];
+  if (!logins.length) return;
+  document.getElementById("bulk-menu").style.display = "none";
+  const info = BULK_ACTION_LABEL[action];
+  if (!confirm2(`${info.pergunta} de ${logins.length} usuário(s)?`)) return;
+
+  const r = await api("/users/bulk-action", "POST", { logins, action });
+  if (!r) return;
+
+  let msg = `${r.aplicado.length} usuário(s) ${info.feito}`;
+  if (r.pulado && r.pulado.length) msg += `, ${r.pulado.length} pulado(s) (expirado — continua bloqueado)`;
+  if (r.falhou && r.falhou.length) msg += `, ${r.falhou.length} falharam`;
+  toast(msg);
+  _selected.clear();
+  loadUsers();
+}
+
+async function createUser() {
+  const login  = document.getElementById("c-login").value.trim();
+  const senha  = document.getElementById("c-senha").value.trim() || "1234";
+  const dias   = parseInt(document.getElementById("c-dias").value) || 30;
+  const limite = parseInt(document.getElementById("c-limite").value) || 1;
+
+  if (!login) { toast("Informe o nome de usuário", true); return; }
+
+  const btn = document.getElementById("btn-criar");
+  btn.disabled = true; btn.textContent = "Criando…";
+
+  const r = await api("/users", "POST", { login, senha, dias, limite });
+  btn.disabled = false; btn.textContent = "Criar Usuário";
+
+  if (!r) return;
+  closeModal("modal-create");
+  ["c-login","c-senha"].forEach(id => document.getElementById(id).value = "");
+  loadUsers();
+  openAccessModal(r.login, r);
+}
+
+async function createTest() {
+  const login   = document.getElementById("t-login").value.trim();
+  const senha   = document.getElementById("t-senha").value.trim() || "123";
+  const minutos = parseInt(document.getElementById("t-minutos").value) || 60;
+
+  const r = await api("/users/test", "POST", { login, senha, minutos });
+  if (!r) return;
+  closeModal("modal-test");
+  loadUsers();
+  openAccessModal(r.login, r);
+}
+
+// ── Item 2: Teste Automático — cria usuário/uuid aleatórios com
+// duração fixa de 2 horas (120 min) e abre direto o popup de acesso,
+// sem passar pelo formulário. Login tem 4 caracteres, sempre começando
+// com letra. A flag "auto: true" instrui o backend a usar exatamente o
+// mesmo valor do login como senha — regra exclusiva deste botão, não
+// se aplica ao modal manual de Teste (⚡ Teste). ─────────────────────
+async function createAutoTest() {
+  const r = await api("/users/test", "POST", { login: "", senha: "", minutos: 120, auto: true });
+  if (!r) return;
+  loadUsers();
+  openAccessModal(r.login, r);
+}
+
+async function deleteUser(login) {
+  if (!confirm2(`Remover o usuário "${login}"?`)) return;
+  const r = await api(`/users/${login}`, "DELETE");
+  if (!r) return;
+  toast(`${login} removido!`);
+  loadUsers();
+}
+
+async function unblockUser(login) {
+  const r = await api(`/users/${login}/unblock`, "POST");
+  if (!r) return;
+  toast(`${login} desbloqueado!`);
+  loadUsers();
+}
+
+async function suspenderUsuario(login) {
+  if (!confirm2(`Suspender "${login}" agora? O acesso (SSH + Xray) é cortado imediatamente e fica bloqueado até você desbloquear ou renovar.`)) return;
+  const r = await api(`/users/${login}/suspend`, "POST");
+  if (!r) return;
+  toast(`${login} suspenso imediatamente!`);
+  loadUsers();
+}
+
+async function renovarUsuario(login) {
+  if (!confirm2(`Renovar "${login}" por +30 dias? Se estiver bloqueado, também será desbloqueado.`)) return;
+  const r = await api(`/users/${login}/renovar`, "POST", { dias: 30 });
+  if (!r) return;
+  toast(`${login} renovado até ${fmtDate(r.expira)}!`);
+  loadUsers();
+}
+
+async function deleteExpired() {
+  if (!confirm2("Remover TODOS os usuários expirados?")) return;
+  const r = await api("/users/expired", "DELETE");
+  if (!r) return;
+  toast(`${r.removed.length} usuário(s) removido(s)`);
+  loadUsers();
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  Item 9: Popup unificado de acesso — usado ao criar usuário
+//  mensal, ao criar teste (manual ou automático) e ao clicar em
+//  "Link" na listagem. Todos os campos são editáveis; "Salvar
+//  Alterações" grava validade/senha/limite/chave de acesso e os
+//  links do app (ainda em branco, serão preenchidos no futuro).
+// ══════════════════════════════════════════════════════════════════
+let _accessLogin = null;
+
+async function openAccessModal(login, freshData) {
+  _accessLogin = login;
+  document.getElementById("access-title").textContent = `🔗 Acesso — ${login}`;
+
+  let u = freshData;
+  if (!u || !u.uuid) {
+    // Veio do botão "Link": busca os dados atuais na lista já carregada
+    u = _allUsers.find(x => x.login === login) || {};
+  }
+
+  const isTest = !!u.minutos;
+  document.getElementById("a-nome").value      = login;
+  document.getElementById("a-senha").value     = u.senha || "";
+  document.getElementById("a-validade").value  = u.expira || (isTest ? `expira em ${u.minutos} min` : "");
+  document.getElementById("a-limite").value    = u.limite || 1;
+  document.getElementById("a-chave").value     = u.uuid || "";
+
+  // Telefone do cliente (item: campo de WhatsApp)
+  const waInfo = await api(`/users/${login}/whatsapp`) || {};
+  document.getElementById("a-whatsapp").value = waInfo.phone || "";
+
+  // Links do app/tutoriais — agora globais, geridos em Configurações.
+  // Aqui só mostramos um resumo (somente leitura) pra facilitar copiar.
+  _globalAppLinks = await api("/app-links") || {};
+  const gl = _globalAppLinks;
+  const linesPreview = [];
+  if (gl.apk_android)      linesPreview.push(`📲 Android: ${gl.apk_android}`);
+  if (gl.apk_iphone)       linesPreview.push(`🍏 iPhone: ${gl.apk_iphone}`);
+  if (gl.npvtunnel_iphone) linesPreview.push(`📄 NPVTunnel: ${gl.npvtunnel_iphone}`);
+  if (gl.tutorial_iphone)  linesPreview.push(`📘 Tutorial iPhone: ${gl.tutorial_iphone}`);
+  if (gl.tutorial_android) linesPreview.push(`📗 Tutorial Android: ${gl.tutorial_android}`);
+  document.getElementById("a-links-preview").innerHTML = linesPreview.length
+    ? linesPreview.map(l => `<div>${l}</div>`).join("")
+    : "Nada configurado ainda — edite em Configurações.";
+
+  openModal("modal-access");
+}
+
+// Mantém o nome da função usada pelo botão "🔗 Link" na tabela
+async function showDetails(login) {
+  openAccessModal(login);
+}
+
+// Item 3: copia apenas os dados do bloco "🔑 Dados da Conta" (Nome,
+// Senha, Validade, Limite) — usado nos 3 fluxos de criação (mensal,
+// teste manual e teste automático), já que todos passam por este
+// mesmo modal unificado. Item 4: espaçamento maior entre linhas e
+// mensagem mais amigável, com emojis. ────────────────────────────────
+function copyAccessBasic() {
+  const nome     = document.getElementById("a-nome").value;
+  const senha    = document.getElementById("a-senha").value;
+  const validade = document.getElementById("a-validade").value;
+  const limite   = document.getElementById("a-limite").value;
+
+  const text =
+`✅ *Seus dados de acesso estão prontos!* 🎉
+
+👤 Usuário: ${nome}
+
+🔒 Senha: ${senha}
+
+📅 Validade: ${validade}
+
+🔢 Limite de conexões: ${limite}
+
+Qualquer dúvida, é só chamar! 🚀`;
+
+  copyText(text);
+}
+
+function copyAccessFull() {
+  const gl = _globalAppLinks || {};
+  const text =
+`✅ *Acesso liberado — ${document.getElementById("a-nome").value}* 🎉
+
+👤 Usuário: ${document.getElementById("a-nome").value}
+
+🔒 Senha (apenas clientes vivo): ${document.getElementById("a-senha").value}
+
+📅 Validade: ${document.getElementById("a-validade").value}
+
+🔢 Limite: ${document.getElementById("a-limite").value}
+
+🔑 Chave de acesso: ${document.getElementById("a-chave").value}
+
+📲 Link para download do APK (Android): ${gl.apk_android || "—"}
+🍏 Link para download do APK (iPhone): ${gl.apk_iphone || "—"}
+📄 Arquivo NPVTunnel (iPhone): ${gl.npvtunnel_iphone || "—"}
+📘 Tutorial para iPhone: ${gl.tutorial_iphone || "—"}
+📗 Tutorial para Android: ${gl.tutorial_android || "—"}
+
+Bons acessos! 🚀`;
+  copyText(text);
+}
+
+async function saveAccessModal() {
+  if (!_accessLogin) return;
+  const btn = document.getElementById("btn-salvar-access");
+  btn.disabled = true; btn.textContent = "Salvando…";
+
+  const payloadUser = {
+    senha: document.getElementById("a-senha").value.trim(),
+    expira: document.getElementById("a-validade").value.trim(),
+    limite: parseInt(document.getElementById("a-limite").value) || undefined,
+    uuid: document.getElementById("a-chave").value.trim()
+  };
+  const phone = document.getElementById("a-whatsapp").value.trim();
+
+  const r1 = await api(`/users/${_accessLogin}`, "PUT", payloadUser);
+  const r2 = await api(`/users/${_accessLogin}/whatsapp`, "PUT", { phone });
+
+  btn.disabled = false; btn.textContent = "💾 Salvar Alterações";
+
+  if (r1 && r2) {
+    toast("Alterações salvas!");
+    loadUsers();
+  }
+}
+
+// Filtros em tempo real
+document.getElementById("filter-search").addEventListener("input", renderUsers);
+document.getElementById("filter-status").addEventListener("change", renderUsers);
+
+// ── Foto do usuário — portado do NetSimon 7.0 ──────────────────────
+let _photoTarget = null;
+
+function openPhotoModal(login, fotoUrl) {
+  _photoTarget = login;
+  document.getElementById("ph-login").textContent = login;
+  const preview = document.getElementById("ph-preview");
+  if (fotoUrl) {
+    preview.src = fotoUrl + "?v=" + Date.now();
+    preview.style.display = "block";
+  } else {
+    preview.style.display = "none";
+  }
+  document.getElementById("ph-file").value = "";
+  document.getElementById("ph-remove-btn").style.display = fotoUrl ? "inline-flex" : "none";
+  openModal("modal-photo");
+}
+
+document.getElementById("ph-file").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const preview = document.getElementById("ph-preview");
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = "block";
+});
+
+async function confirmUploadPhoto() {
+  const fileInput = document.getElementById("ph-file");
+  if (!fileInput.files.length) { toast("Selecione uma imagem", true); return; }
+  const file = fileInput.files[0];
+  if (file.size > 2 * 1024 * 1024) { toast("Imagem muito grande (máx 2 MB)", true); return; }
+
+  const formData = new FormData();
+  formData.append("foto", file);
+
+  try {
+    const resp = await fetch(`/api/users/${_photoTarget}/photo`, {
+      method: "POST",
+      headers: { "X-Token": getToken() },
+      body: formData
+    });
+    const data = await resp.json();
+    if (!resp.ok) { toast(data.error || "Erro ao enviar foto", true); return; }
+    toast("Foto salva!");
+    closeModal("modal-photo");
+    loadUsers();
+  } catch (e) {
+    toast("Erro de conexão ao enviar foto", true);
+  }
+}
+
+async function removePhoto() {
+  if (!confirm(`Remover a foto de "${_photoTarget}"?`)) return;
+  const r = await api(`/users/${_photoTarget}/photo`, "DELETE");
+  if (!r) return;
+  toast("Foto removida.");
+  closeModal("modal-photo");
+  loadUsers();
+}
+
+// Pré-aplica o filtro se veio de um clique nos cards do Dashboard
+const _urlParams = new URLSearchParams(window.location.search);
+const _statusParam = _urlParams.get("status");
+if (_statusParam) document.getElementById("filter-status").value = _statusParam;
+
+initPage();
+loadUsers();
+setInterval(loadUsers, 15000);
+</script>
+</body>
+</html>

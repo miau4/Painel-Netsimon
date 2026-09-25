@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem("ns_theme")==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Netsimon — Manutenção</title>
+<link rel="icon" type="image/png" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/painel.css?v=19">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard.html" class="sidebar-logo" title="Início">
+      <div class="logo-icon"><img src="/img/logo.png" alt="Painel Netsimon"></div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="/dashboard.html" class="nav-item" data-page="dashboard">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-home.png" alt="Início"></span><span>Início</span>
+      </a>
+      <a href="/usuarios.html" class="nav-item" data-page="usuarios">
+        <span class="nav-icon">👤</span><span>Usuários</span>
+      </a>
+      <a href="/todos-usuarios.html" class="nav-item" data-page="todos-usuarios">
+        <span class="nav-icon">👥</span><span>Todos os Usuários</span>
+      </a>
+      <a href="/revendedores.html" class="nav-item reseller-manage-only" data-page="revendedores">
+        <span class="nav-icon">🏪</span><span>Revendedores</span>
+      </a>
+      <a href="/dispositivos.html" class="nav-item" data-page="dispositivos">
+        <span class="nav-icon">📵</span><span>Dispositivos</span>
+      </a>
+      <a href="/xray.html" class="nav-item admin-only" data-page="xray">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-xray.png" alt="Xray"></span><span>Xray</span>
+      </a>
+      <a href="/servidores.html" class="nav-item admin-only" data-page="servidores">
+        <span class="nav-icon">🖧</span><span>Servidores</span>
+      </a>
+      <a href="/diagnostico.html" class="nav-item" data-page="diagnostico">
+        <span class="nav-icon">🛠️</span><span>Manutenção</span>
+      </a>
+      <a href="/whatsapp.html" class="nav-item" data-page="whatsapp">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-whatsapp.png" alt="Bot WhatsApp"></span><span>Bot WhatsApp</span>
+      </a>
+      <a href="/campanhas.html" class="nav-item" data-page="campanhas">
+        <span class="nav-icon">📣</span><span>Campanhas</span>
+      </a>
+      <a href="/app.html" class="nav-item" data-page="app">
+        <span class="nav-icon">📱</span><span>Aplicativo</span>
+      </a>
+      <a href="/backup.html" class="nav-item admin-only" data-page="backup">
+        <span class="nav-icon">💾</span><span>Backup</span>
+      </a>
+      <a href="/bot.html" class="nav-item admin-only" data-page="bot">
+        <span class="nav-icon">🤖</span><span>Bot Telegram</span>
+      </a>
+      <a href="/logs.html" class="nav-item admin-only" data-page="logs">
+        <span class="nav-icon">📋</span><span>Logs</span>
+      </a>
+      <a href="#" class="nav-item admin-only" data-page="terminal" onclick="openTerminal(); return false;">
+        <span class="nav-icon">🖥️</span><span>Terminal</span>
+      </a>
+      <a href="/ia.html" class="nav-item" data-page="ia">
+        <span class="nav-icon">✨</span><span>IA</span>
+      </a>
+      <!-- Item 4: menu novo, exclusivo do admin (não é recurso por revendedor). -->
+      <a href="/material.html" class="nav-item admin-only" data-page="material">
+        <span class="nav-icon">🗃️</span><span>Material</span>
+      </a>
+      <a href="/configuracoes.html" class="nav-item admin-only" data-page="config">
+        <span class="nav-icon">⚙️</span><span>Configurações</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">👑</span>
+        <div>
+          <div class="user-name" id="sidebar-username">–</div>
+          <div class="user-role" id="sidebar-role">–</div>
+        </div>
+      </div>
+      <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema" onclick="toggleTheme()">☀️</button>
+      <button class="btn-logout" id="btn-logout" title="Sair">⏻</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="burger" id="burger">☰</button>
+        <h1 class="page-title">Manutenção</h1>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" onclick="runDiagnostics()">🧠 Analisar Agora</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="card-panel" style="padding:14px 18px">
+        <p class="text-sm text-muted" style="margin:0">
+          Análise por regras em cima dos dados reais do seu painel — vencimentos, tempo de conexão e bloqueios —
+          apresentada em linguagem simples, com sugestões de ação. Não é um modelo de IA externo, é o próprio
+          painel lendo os dados e te avisando do que precisa de atenção.
+        </p>
+      </div>
+
+      <div class="card-panel" data-panel-id="pontos-atencao">
+        <div class="card-panel-header">
+          <span>📋 Pontos de atenção</span>
+          <span class="text-muted" id="diag-time" style="font-size:11px">–</span>
+        </div>
+        <div id="diag-insights" style="padding:16px 18px; display:flex; flex-direction:column; gap:10px;">
+          <span class="text-muted">Clique em "Analisar Agora" para gerar o diagnóstico.</span>
+        </div>
+      </div>
+
+      <div class="card-panel" data-panel-id="sugestoes-gerenciamento">
+        <div class="card-panel-header"><span>✅ Sugestões de gerenciamento</span></div>
+        <div id="diag-suggestions" style="padding:16px 18px; display:flex; flex-direction:column; gap:10px;">
+          <span class="text-muted">–</span>
+        </div>
+      </div>
+
+      <div class="card-panel admin-only" data-panel-id="modo-automacao" style="border-color:var(--accent)">
+        <div class="card-panel-header"><span>⚙️ Modo de automação do autodiagnóstico</span></div>
+        <div style="padding:16px 18px; display:flex; flex-direction:column; gap:12px;">
+          <p class="text-sm text-muted" style="margin:0">
+            Controla o quanto o painel age sozinho quando detecta um problema técnico.
+            Trocar pra <strong>Manual</strong> desliga TODA ação automática na hora — é o botão de emergência.
+          </p>
+          <div id="diag-mode-buttons" style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-sm" data-modo="manual" onclick="setDiagMode('manual')" style="flex:1; min-width:150px;">
+              🛑 Manual<br><span style="font-weight:400; font-size:11px">Nada é feito sozinho — tudo aguarda sua aprovação</span>
+            </button>
+            <button class="btn btn-sm" data-modo="parcial" onclick="setDiagMode('parcial')" style="flex:1; min-width:150px;">
+              ⚖️ Parcial<br><span style="font-weight:400; font-size:11px">Só reinício de serviço caído é automático</span>
+            </button>
+            <button class="btn btn-sm" data-modo="automatico" onclick="setDiagMode('automatico')" style="flex:1; min-width:150px;">
+              ⚡ Automático<br><span style="font-weight:400; font-size:11px">Corrige tudo sozinho (padrão)</span>
+            </button>
+          </div>
+          <span class="text-muted" style="font-size:11px">
+            Restauração de config.json corrompido sempre acontece na hora, em qualquer modo — é uma restauração
+            pro último estado bom conhecido, baixo risco, e o painel precisa de um config funcional pra sequer
+            carregar esta tela. Reinício de servidor físico NUNCA é feito automaticamente, em nenhum modo.
+          </span>
+        </div>
+      </div>
+
+      <div class="card-panel admin-only" data-panel-id="incidentes-tecnicos">
+        <div class="card-panel-header">
+          <span>🛠️ Incidentes técnicos (autodiagnóstico)</span>
+          <button class="btn btn-ghost btn-sm" onclick="loadDiagIncidents()">↻ Atualizar</button>
+        </div>
+        <p class="text-sm text-muted" style="margin:0; padding:12px 18px 0">
+          Sempre que uma rota do painel retorna erro (500, 400, etc.) ou trava por um script/arquivo faltando,
+          serviço parado ou permissão errada, o painel classifica a causa por padrões conhecidos e corrige (ou
+          pede aprovação, conforme o modo acima) — sempre fazendo backup do que for alterado antes, pra dar pra
+          reverter aqui se precisar.
+        </p>
+        <div id="diag-incidents" style="padding:16px 18px; display:flex; flex-direction:column; gap:10px;">
+          <span class="text-muted">Carregando…</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/painel.js"></script>
+<script>
+const ICONS = { vencimento: "⏰", conexao_longa: "🏆", conexao_curta: "🕐", bloqueados: "🚫", cota: "📦", ok: "✅" };
+
+function escapeHtml(s) {
+  return (s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+const DIAG_STATUS_LABEL = {
+  corrigido: { texto: "✅ Corrigido automaticamente", cor: "var(--success, #2ecc71)" },
+  falhou: { texto: "❌ Correção falhou", cor: "var(--danger)" },
+  sem_correcao_conhecida: { texto: "⚠️ Sem correção conhecida — revisar manualmente", cor: "var(--warning)" },
+  revertido: { texto: "↩️ Revertido pelo admin", cor: "var(--muted)" },
+  pendente_aprovacao: { texto: "⏳ Aguardando sua aprovação", cor: "var(--warning)" },
+  rejeitado: { texto: "🚫 Rejeitado pelo admin (nada foi feito)", cor: "var(--muted)" },
+};
+
+async function runDiagnostics() {
+  document.getElementById("diag-insights").innerHTML = `<span class="text-muted">Analisando…</span>`;
+  const data = await api("/diagnostics");
+  if (!data) return;
+
+  document.getElementById("diag-time").textContent = "Gerado em " + fmtDate(data.gerado_em.replace("T", " ").substring(0, 19));
+
+  document.getElementById("diag-insights").innerHTML = data.insights.map(i =>
+    `<div style="display:flex; gap:10px; align-items:flex-start; padding:10px 12px; background:var(--surface2); border-radius:8px; border:1px solid var(--border)">
+      <span style="font-size:18px">${ICONS[i.tipo] || "•"}</span>
+      <span class="text-sm">${i.texto}</span>
+    </div>`
+  ).join("");
+
+  const sug = data.sugestoes || [];
+  document.getElementById("diag-suggestions").innerHTML = sug.length
+    ? sug.map(s => `<div style="display:flex; gap:10px; align-items:center; justify-content:space-between; padding:10px 12px; background:var(--surface2); border-radius:8px; border:1px solid var(--border)">
+        <span class="text-sm">${s.texto}</span>
+        ${s.auto_ok ? `<button class="btn btn-ghost btn-sm" disabled title="Execução automática opcional — configure em Configurações">⚡ Automático</button>` : ""}
+      </div>`).join("")
+    : `<span class="text-muted">Nenhuma sugestão no momento.</span>`;
+}
+
+async function loadDiagIncidents() {
+  if (getRole() !== "admin") return;
+  const el = document.getElementById("diag-incidents");
+  el.innerHTML = `<span class="text-muted">Carregando…</span>`;
+  const data = await api("/diagnostics/incidents");
+  if (!data) return;
+  const items = data.incidentes || [];
+  if (!items.length) {
+    el.innerHTML = `<span class="text-muted">Nenhum incidente registrado ainda — tudo funcionando normalmente. ✅</span>`;
+    return;
+  }
+  el.innerHTML = items.map(inc => {
+    const st = DIAG_STATUS_LABEL[inc.status] || { texto: inc.status, cor: "var(--muted)" };
+    const podeReverter = inc.auto_aplicada && inc.status === "corrigido" && (inc.backup_path || inc.permissao_anterior);
+    const pendente = inc.status === "pendente_aprovacao";
+    const falhou = inc.status === "falhou";
+    const podeRetry = pendente || falhou;
+    const ehServico = inc.causa_tipo === "servico_parado";
+    const diag = inc.diagnostico;
+    const respostasIA = inc.ia_respostas || [];
+    const ultimaRespostaIA = respostasIA.length ? respostasIA[respostasIA.length - 1] : null;
+
+    const blocoDiagnostico = diag ? `
+      <details style="margin-top:4px;">
+        <summary class="text-sm" style="cursor:pointer; color:var(--accent);">🔍 Ver diagnóstico técnico coletado (${fmtDate((diag.coletado_em || "").replace("T"," ").substring(0,19)) || "agora"})</summary>
+        <div style="margin-top:8px; display:flex; flex-direction:column; gap:8px;">
+          ${diag.dica ? `<div class="text-sm" style="padding:8px 10px; background:var(--surface); border-radius:6px; border:1px dashed var(--accent);">💡 <strong>Causa provável:</strong> ${diag.dica}</div>` : ""}
+          ${diag.systemctl_status ? `<div><div class="text-muted" style="font-size:11px; margin-bottom:2px;">Status do serviço (systemd):</div><pre class="log-viewer" style="max-height:160px; font-size:11px; margin:0;">${escapeHtml(diag.systemctl_status)}</pre></div>` : ""}
+          ${diag.log_tail ? `<div><div class="text-muted" style="font-size:11px; margin-bottom:2px;">Últimas linhas de ${diag.log_path || "log"}:</div><pre class="log-viewer" style="max-height:160px; font-size:11px; margin:0;">${escapeHtml(diag.log_tail)}</pre></div>` : ""}
+          ${diag.erro_comando ? `<div><div class="text-muted" style="font-size:11px; margin-bottom:2px;">Erro do comando de reinício:</div><pre class="log-viewer" style="max-height:120px; font-size:11px; margin:0;">${escapeHtml(diag.erro_comando)}</pre></div>` : ""}
+          ${(diag.portas || []).length ? `<div><div class="text-muted" style="font-size:11px; margin-bottom:4px;">Quem está ocupando cada porta agora:</div>${diag.portas.map(p => `<div class="text-sm" style="padding:4px 0;">🔌 Porta <strong>${p.porta}</strong>: ${p.ocupada_por ? `${escapeHtml(p.ocupada_por)} <span class="text-muted">(PID ${p.pid})</span>` : `<span class="text-muted">livre</span>`}</div>`).join("")}</div>` : ""}
+          ${(diag.tentativas || []).length ? `<div><div class="text-muted" style="font-size:11px; margin-bottom:4px;">O que o autodiagnóstico tentou automaticamente:</div>${diag.tentativas.map(t => `
+            <div class="text-sm" style="padding:6px 8px; background:var(--surface); border-radius:6px; margin-bottom:4px;">
+              <strong>Tentativa ${t.tentativa}:</strong> ${t.up_depois ? "✅ subiu" : (t.resultado || "❌ continuou fora do ar")}
+              ${(t.acoes_corretivas || []).length ? `<ul style="margin:4px 0 0 18px; padding:0;">${t.acoes_corretivas.map(a => `<li>${escapeHtml(a)}</li>`).join("")}</ul>` : ""}
+            </div>`).join("")}</div>` : ""}
+          ${diag.processo ? `<div style="padding:8px 10px; background:var(--surface); border-radius:6px; border:1px dashed var(--danger, #e55);">
+              <div class="text-sm" style="margin-bottom:4px;">🛡️ <strong>Processo neutralizado:</strong> "${escapeHtml(diag.processo || "")}" (PID ${diag.pid ?? "?"})</div>
+              <div class="text-muted" style="font-size:11px;">Motivo: ${escapeHtml(diag.motivo_deteccao || "")}</div>
+              ${diag.caminho_executavel ? `<div class="text-muted" style="font-size:11px;">Executável: ${escapeHtml(diag.caminho_executavel)}</div>` : ""}
+              ${diag.sha256_binario ? `<div class="text-muted" style="font-size:11px;">SHA-256: ${escapeHtml(diag.sha256_binario)}</div>` : ""}
+              <div class="text-muted" style="font-size:11px;">Usuário Linux envolvido: ${escapeHtml(diag.usuario_dono || "")}</div>
+              ${(diag.acoes_tomadas || []).length ? `<ul style="margin:6px 0 0 18px; padding:0;">${diag.acoes_tomadas.map(a => `<li class="text-sm">${escapeHtml(a)}</li>`).join("")}</ul>` : ""}
+            </div>` : ""}
+        </div>
+      </details>` : "";
+
+    const blocoIA = ultimaRespostaIA ? `
+      <details style="margin-top:4px;" open>
+        <summary class="text-sm" style="cursor:pointer; color:var(--accent);">🤖 Resposta da IA (${fmtDate((ultimaRespostaIA.em || "").replace("T"," ").substring(0,19))})</summary>
+        <div class="text-sm" style="margin-top:8px; padding:10px 12px; background:var(--surface); border-radius:6px; white-space:pre-wrap;">${escapeHtml(ultimaRespostaIA.resposta)}</div>
+      </details>` : "";
+
+    return `
+    <div style="padding:12px 14px; background:var(--surface2); border-radius:8px; border:1px solid ${pendente || falhou ? "var(--warning)" : "var(--border)"}; display:flex; flex-direction:column; gap:6px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <span class="text-sm" style="font-weight:600">${inc.causa_detalhe || inc.causa_tipo || "Incidente"}</span>
+        <span class="text-muted" style="font-size:11px; white-space:nowrap;">${fmtDate((inc.criado_em || "").replace("T", " ").substring(0, 19))}</span>
+      </div>
+      <div class="text-sm" style="color:${st.cor}">${st.texto}</div>
+      ${inc.correcao ? `<div class="text-sm text-muted">Ação: ${inc.correcao}</div>` : ""}
+      ${inc.rota ? `<div class="text-muted" style="font-size:11px">${inc.metodo || ""} ${inc.rota} — HTTP ${inc.status_http || ""} — origem: ${inc.origem || ""}</div>` : `<div class="text-muted" style="font-size:11px">origem: ${inc.origem || ""}</div>`}
+      ${blocoDiagnostico}
+      ${blocoIA}
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:2px;">
+        ${podeReverter ? `<button class="btn btn-danger btn-sm" onclick="revertDiagIncident('${inc.id}')">↩️ Reverter esta correção</button>` : ""}
+        ${pendente ? `<button class="btn btn-sm" style="background:var(--accent); color:#fff;" onclick="approveDiagIncident('${inc.id}')">✅ Aprovar e corrigir agora</button>` : ""}
+        ${pendente ? `<button class="btn btn-ghost btn-sm" onclick="rejectDiagIncident('${inc.id}')">🚫 Rejeitar</button>` : ""}
+        ${podeRetry ? `<button class="btn btn-ghost btn-sm" onclick="retryDiagIncident('${inc.id}')">🔁 Tentar novamente</button>` : ""}
+        ${ehServico ? `<button class="btn btn-ghost btn-sm" onclick="diagnosticarIncident('${inc.id}')">🔍 Diagnosticar</button>` : ""}
+        <button class="btn btn-ghost btn-sm" onclick="perguntarIA('${inc.id}')">🤖 Perguntar à IA</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function retryDiagIncident(id) {
+  toast("Tentando corrigir de novo…");
+  const data = await api(`/diagnostics/incidents/${id}/retry`, "POST");
+  if (!data) return;
+  toast(data.incidente?.status === "corrigido" ? "Correção aplicada com sucesso" : "Continua falhando — veja o diagnóstico técnico abaixo do incidente");
+  loadDiagIncidents();
+}
+
+async function diagnosticarIncident(id) {
+  toast("Coletando diagnóstico do servidor…");
+  const data = await api(`/diagnostics/incidents/${id}/diagnosticar`, "POST");
+  if (!data) return;
+  toast("Diagnóstico atualizado");
+  loadDiagIncidents();
+}
+
+async function perguntarIA(id) {
+  toast("Perguntando à IA… isso pode levar alguns segundos");
+  const data = await api(`/diagnostics/incidents/${id}/perguntar-ia`, "POST");
+  if (!data) return;
+  loadDiagIncidents();
+}
+
+async function approveDiagIncident(id) {
+  const data = await api(`/diagnostics/incidents/${id}/aprovar`, "POST");
+  if (!data) return;
+  toast(data.incidente?.status === "corrigido" ? "Correção aplicada com sucesso" : "Tentativa de correção falhou — veja detalhes");
+  loadDiagIncidents();
+}
+
+async function rejectDiagIncident(id) {
+  if (!confirm2("Rejeitar esta correção? Nada será feito e o problema continuará como está.")) return;
+  const data = await api(`/diagnostics/incidents/${id}/rejeitar`, "POST");
+  if (!data) return;
+  toast("Incidente rejeitado");
+  loadDiagIncidents();
+}
+
+async function revertDiagIncident(id) {
+  if (!confirm2("Reverter esta correção automática? O arquivo/permissão voltará ao estado de antes.")) return;
+  const data = await api(`/diagnostics/incidents/${id}/revert`, "POST");
+  if (!data) return;
+  toast(data.mensagem || "Revertido com sucesso");
+  loadDiagIncidents();
+}
+
+async function loadDiagMode() {
+  if (getRole() !== "admin") return;
+  const data = await api("/diagnostics/settings");
+  if (!data) return;
+  highlightDiagMode(data.modo);
+}
+
+function highlightDiagMode(modo) {
+  document.querySelectorAll("#diag-mode-buttons button").forEach(btn => {
+    const ativo = btn.dataset.modo === modo;
+    btn.classList.toggle("btn-primary", ativo);
+    btn.classList.toggle("btn-ghost", !ativo);
+    btn.style.outline = ativo ? "2px solid var(--accent)" : "none";
+  });
+}
+
+async function setDiagMode(modo) {
+  if (modo === "manual" && !confirm2("Trocar pro modo Manual? O autodiagnóstico vai parar de corrigir qualquer coisa sozinho — tudo vai esperar sua aprovação.")) return;
+  const data = await api("/diagnostics/settings", "POST", { modo });
+  if (!data) return;
+  toast(`Modo de automação: ${modo}`);
+  highlightDiagMode(modo);
+}
+
+initPage();
+runDiagnostics();
+loadDiagIncidents();
+loadDiagMode();
+</script>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem("ns_theme")==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Netsimon — Material</title>
+<link rel="icon" type="image/png" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/painel.css?v=19">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard.html" class="sidebar-logo" title="Início">
+      <div class="logo-icon"><img src="/img/logo.png" alt="Painel Netsimon"></div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="/dashboard.html" class="nav-item" data-page="dashboard">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-home.png" alt="Início"></span><span>Início</span>
+      </a>
+      <a href="/usuarios.html" class="nav-item" data-page="usuarios">
+        <span class="nav-icon">👤</span><span>Usuários</span>
+      </a>
+      <a href="/todos-usuarios.html" class="nav-item" data-page="todos-usuarios">
+        <span class="nav-icon">👥</span><span>Todos os Usuários</span>
+      </a>
+      <a href="/revendedores.html" class="nav-item reseller-manage-only" data-page="revendedores">
+        <span class="nav-icon">🏪</span><span>Revendedores</span>
+      </a>
+      <a href="/dispositivos.html" class="nav-item" data-page="dispositivos">
+        <span class="nav-icon">📵</span><span>Dispositivos</span>
+      </a>
+      <a href="/xray.html" class="nav-item admin-only" data-page="xray">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-xray.png" alt="Xray"></span><span>Xray</span>
+      </a>
+      <a href="/servidores.html" class="nav-item admin-only" data-page="servidores">
+        <span class="nav-icon">🖧</span><span>Servidores</span>
+      </a>
+      <a href="/diagnostico.html" class="nav-item" data-page="diagnostico">
+        <span class="nav-icon">🛠️</span><span>Manutenção</span>
+      </a>
+      <a href="/whatsapp.html" class="nav-item" data-page="whatsapp">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-whatsapp.png" alt="Bot WhatsApp"></span><span>Bot WhatsApp</span>
+      </a>
+      <a href="/campanhas.html" class="nav-item" data-page="campanhas">
+        <span class="nav-icon">📣</span><span>Campanhas</span>
+      </a>
+      <a href="/app.html" class="nav-item" data-page="app">
+        <span class="nav-icon">📱</span><span>Aplicativo</span>
+      </a>
+      <a href="/backup.html" class="nav-item admin-only" data-page="backup">
+        <span class="nav-icon">💾</span><span>Backup</span>
+      </a>
+      <a href="/bot.html" class="nav-item admin-only" data-page="bot">
+        <span class="nav-icon">🤖</span><span>Bot Telegram</span>
+      </a>
+      <a href="/logs.html" class="nav-item admin-only" data-page="logs">
+        <span class="nav-icon">📋</span><span>Logs</span>
+      </a>
+      <a href="#" class="nav-item admin-only" data-page="terminal" onclick="openTerminal(); return false;">
+        <span class="nav-icon">🖥️</span><span>Terminal</span>
+      </a>
+      <a href="/ia.html" class="nav-item" data-page="ia">
+        <span class="nav-icon">✨</span><span>IA</span>
+      </a>
+      <!-- Item 4: menu novo, exclusivo do admin (não é recurso por revendedor). -->
+      <a href="/material.html" class="nav-item active admin-only" data-page="material">
+        <span class="nav-icon">🗃️</span><span>Material</span>
+      </a>
+      <a href="/configuracoes.html" class="nav-item admin-only" data-page="config">
+        <span class="nav-icon">⚙️</span><span>Configurações</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">👑</span>
+        <div>
+          <div class="user-name" id="sidebar-username">–</div>
+          <div class="user-role" id="sidebar-role">–</div>
+        </div>
+      </div>
+      <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema" onclick="toggleTheme()">☀️</button>
+      <button class="btn-logout" id="btn-logout" title="Sair">⏻</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="burger" id="burger">☰</button>
+        <h1 class="page-title">Material</h1>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="tabs" id="material-tabs">
+        <button class="tab-btn active" data-tab="material-notas">📝 Notas</button>
+        <button class="tab-btn" data-tab="material-arquivos">📁 Arquivos</button>
+      </div>
+
+      <div class="tab-panel active" id="material-notas">
+        <div class="card-panel">
+          <div class="card-panel-header">
+            <span>📝 Notas</span>
+            <button class="btn btn-primary btn-sm" onclick="novaNota()">+ Nova nota</button>
+          </div>
+          <div style="padding:18px; display:grid; grid-template-columns: 260px 1fr; gap:18px; min-height:400px;">
+            <div id="notas-lista" style="display:flex; flex-direction:column; gap:6px; max-height:600px; overflow-y:auto;">
+              <span class="text-muted text-sm">Carregando…</span>
+            </div>
+            <div id="nota-editor-wrap" style="display:none; flex-direction:column; gap:10px;">
+              <input type="text" id="nota-titulo" placeholder="Título da nota" style="font-size:16px; font-weight:600;">
+              <textarea id="nota-conteudo" rows="18" placeholder="Escreva aqui…" style="font-family:inherit; resize:vertical;"></textarea>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <button class="btn btn-primary btn-sm" onclick="salvarNota()">💾 Salvar</button>
+                <button class="btn btn-danger btn-sm" onclick="excluirNotaAtual()">🗑 Excluir</button>
+                <span class="text-muted text-sm" id="nota-meta"></span>
+              </div>
+            </div>
+            <div id="nota-vazio" class="text-muted text-sm">Selecione uma nota à esquerda ou crie uma nova.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="material-arquivos">
+        <div class="card-panel">
+          <div class="card-panel-header">
+            <span>📁 Arquivos</span>
+            <label class="btn btn-primary btn-sm" style="cursor:pointer; margin:0;">
+              📤 Enviar arquivo
+              <input type="file" id="arquivo-input" style="display:none" onchange="enviarArquivo()">
+            </label>
+          </div>
+          <div class="text-sm text-muted" style="padding:0 18px 12px;">
+            Qualquer tipo de arquivo (txt, imagem, vídeo, zip, etc.), guardado direto no disco do servidor.
+            Sem limite de tamanho ou tipo.
+          </div>
+          <div style="padding:0 18px 18px;">
+            <table class="data-table">
+              <thead><tr><th>Nome</th><th>Tamanho</th><th>Modificado</th><th></th></tr></thead>
+              <tbody id="arquivos-tbody"><tr><td colspan="4" class="text-muted">Carregando…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/painel.js"></script>
+<script>
+function escapeHtml(s) {
+  return (s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.tab).classList.add("active");
+  });
+});
+
+// ── Notas ────────────────────────────────────────────────────────
+let _notaAtualId = null;
+
+function fmtBytes(n) {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} MB`;
+  return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`;
+}
+
+async function carregarNotas() {
+  const lista = document.getElementById("notas-lista");
+  const notas = await api("/material/notas");
+  if (!notas) { lista.innerHTML = `<span class="text-muted text-sm">Falha ao carregar.</span>`; return; }
+  if (!notas.length) {
+    lista.innerHTML = `<span class="text-muted text-sm">Nenhuma nota ainda.</span>`;
+    return;
+  }
+  lista.innerHTML = notas.map(n => `
+    <button class="btn btn-ghost btn-sm" style="justify-content:flex-start; text-align:left; ${n.id === _notaAtualId ? 'background:var(--surface2);' : ''}" onclick="abrirNota('${n.id}')">
+      ${escapeHtml(n.titulo)}
+    </button>
+  `).join("");
+  window._notasCache = notas;
+}
+
+function novaNota() {
+  _notaAtualId = null;
+  document.getElementById("nota-vazio").style.display = "none";
+  document.getElementById("nota-editor-wrap").style.display = "flex";
+  document.getElementById("nota-titulo").value = "";
+  document.getElementById("nota-conteudo").value = "";
+  document.getElementById("nota-meta").textContent = "Nova nota — ainda não salva";
+  document.getElementById("nota-titulo").focus();
+}
+
+function abrirNota(id) {
+  const nota = (window._notasCache || []).find(n => n.id === id);
+  if (!nota) return;
+  _notaAtualId = id;
+  document.getElementById("nota-vazio").style.display = "none";
+  document.getElementById("nota-editor-wrap").style.display = "flex";
+  document.getElementById("nota-titulo").value = nota.titulo;
+  document.getElementById("nota-conteudo").value = nota.conteudo;
+  document.getElementById("nota-meta").textContent = `Atualizado em ${fmtDate(nota.atualizado_em)}`;
+  carregarNotas();
+}
+
+async function salvarNota() {
+  const titulo = document.getElementById("nota-titulo").value.trim();
+  const conteudo = document.getElementById("nota-conteudo").value;
+  if (!titulo) { toast("Dê um título pra nota", true); return; }
+
+  if (_notaAtualId) {
+    const r = await api(`/material/notas/${_notaAtualId}`, "PUT", { titulo, conteudo });
+    if (!r) return;
+    toast("Nota atualizada");
+  } else {
+    const r = await api("/material/notas", "POST", { titulo, conteudo });
+    if (!r) return;
+    _notaAtualId = r.id;
+    toast("Nota criada");
+  }
+  carregarNotas();
+}
+
+async function excluirNotaAtual() {
+  if (!_notaAtualId) { toast("Essa nota ainda não foi salva", true); return; }
+  if (!confirm2("Excluir essa nota? Não dá pra desfazer.")) return;
+  const r = await api(`/material/notas/${_notaAtualId}`, "DELETE");
+  if (!r) return;
+  _notaAtualId = null;
+  document.getElementById("nota-editor-wrap").style.display = "none";
+  document.getElementById("nota-vazio").style.display = "";
+  toast("Nota excluída");
+  carregarNotas();
+}
+
+// ── Arquivos ─────────────────────────────────────────────────────
+async function carregarArquivos() {
+  const tbody = document.getElementById("arquivos-tbody");
+  const arquivos = await api("/material/arquivos");
+  if (!arquivos) { tbody.innerHTML = `<tr><td colspan="4" class="text-muted">Falha ao carregar.</td></tr>`; return; }
+  if (!arquivos.length) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-muted">Nenhum arquivo ainda.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = arquivos.map(a => `
+    <tr>
+      <td>${escapeHtml(a.nome)}</td>
+      <td>${fmtBytes(a.tamanho)}</td>
+      <td>${fmtDate(a.modificado_em)}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-ghost btn-sm" onclick="baixarArquivo('${a.nome.replace(/'/g, "\\'")}')">⬇️</button>
+        <button class="btn btn-danger btn-sm" onclick="excluirArquivo('${a.nome.replace(/'/g, "\\'")}')">🗑</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+async function enviarArquivo() {
+  const input = document.getElementById("arquivo-input");
+  const file = input.files[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append("file", file);
+  const r = await fetch("/api/material/arquivos", { method: "POST", headers: { "X-Token": getToken() }, body: fd });
+  input.value = "";
+  if (!r.ok) { toast("Falha ao enviar arquivo", true); return; }
+  toast("Arquivo enviado");
+  carregarArquivos();
+}
+
+async function baixarArquivo(nome) {
+  try {
+    const res = await fetch(`/api/material/arquivos/${encodeURIComponent(nome)}`, { headers: { "X-Token": getToken() } });
+    if (!res.ok) { toast("Falha ao baixar arquivo", true); return; }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = nome;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    toast("Falha ao baixar arquivo", true);
+  }
+}
+
+async function excluirArquivo(nome) {
+  if (!confirm2(`Excluir "${nome}"? Não dá pra desfazer.`)) return;
+  const r = await api(`/material/arquivos/${encodeURIComponent(nome)}`, "DELETE");
+  if (!r) return;
+  toast("Arquivo excluído");
+  carregarArquivos();
+}
+
+carregarNotas();
+carregarArquivos();
+</script>
+</body>
+</html>

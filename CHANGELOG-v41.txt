@@ -1,0 +1,52 @@
+Painel Netsimon — v41
+======================
+Gerado a partir da v40. Correções e um novo protocolo pedidos pelo Simon.
+
+1) Menu WebSocket — 4 sistemas independentes, cada um com código próprio,
+   nenhum mesclado com outro:
+     - WS PROXY    -> proxy.py, porta 80, sem TLS (já existia, inalterado)
+     - WSS TLS      -> wss.py, porta 8443, TLS real (já existia, inalterado)
+     - WSS SSH      -> wss_security.py, porta 8888, sem TLS — PROTOCOLO
+                       NOVO enviado pelo Simon, incluído exatamente como
+                       enviado, sem nenhuma linha alterada
+     - STUNNEL SSL  -> netsimon-stunnel.service, porta 2053 -> 127.0.0.1:22
+   Arquivos: websocket.html, websocket.sh, painel_api.py, painel.js,
+   install.sh, uninstall.sh, boot_check.sh, repair.sh, menu.sh, dashboard.html
+   Os 4 rodam como serviço systemd de verdade (Restart=always), com porta
+   de entrada livre pra escolher em todos, e destino configurável em
+   WSS TLS / WSS SSH / STUNNEL SSL. Instalados automaticamente no
+   install.sh nas portas padrão acima.
+   Bônus corrigido: o antigo stunnel4 "cru" instalado direto pelo
+   install.sh (fixo na porta 8443, sem tela de gerenciamento) colidia
+   de porta com o WSS TLS — virou o STUNNEL SSL dedicado, na porta 2053.
+
+2) SlowDNS — conserto do erro ao instalar pelo painel web
+   Arquivos: painel_api.py, slowdns-server.sh
+   Antes: o setup exigia que o binário dnstt-server já estivesse colocado
+   manualmente em /root antes de instalar — sem isso, sempre estourava
+   popup de erro.
+   Agora: se o binário não for encontrado, o painel compila ele sozinho a
+   partir do fonte oficial (via Go, sem precisar de git), instalando o Go
+   automaticamente se preciso. Continua aceitando um binário colocado
+   manualmente em /root, se preferir.
+
+3) Xray config.json — edição liberada
+   Arquivos: xray.html, painel_api.py
+   Antes: o config.json aparecia só como visualização (somente leitura).
+   Agora: vira um editor de texto com botão "Salvar e Reiniciar Xray". Antes
+   de aplicar, o painel testa a config com "xray run -test" e só sobrescreve
+   o arquivo em uso se ela passar no teste — guarda automaticamente uma
+   cópia de segurança do config anterior ao lado (config.json.bak-<hora>).
+
+4) OpenVPN / Reality — levantamento
+   Não há nada no projeto hoje que sirva de base (nenhuma menção em
+   painel_api.py, xray.html, xray.sh ou install.sh). Fica para quando
+   entrar em escopo.
+
+5) Ícone "Todos os Usuários"
+   Arquivos: as 19 páginas com navegação lateral
+   Trocado de 🗂️ para 👥.
+
+6) Versão do painel
+   Arquivos: login.html, painel.js
+   Atualizada de v34 (valor que estava gravado no código) para v41.

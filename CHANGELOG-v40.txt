@@ -1,0 +1,48 @@
+Painel Netsimon — v40
+======================
+Gerado a partir da v39. Foco desta versão: substituir de vez a antiga
+WebSocket Security (security.py) por um WSS com TLS real, e reorganizar o
+menu "Gerenciar Conexões" com ícones e descrições melhores.
+
+1) WSS — WebSocket Security agora com TLS real
+   Arquivos: wss.py (novo), security.py (removido), painel_api.py,
+   websocket.html, websocket.sh, install.sh, uninstall.sh, boot_check.sh,
+   repair.sh, migrate_ssh_xhttp.sh
+   Antes: a "WebSocket Security" (security.py) exigia token no handshake,
+   mas nunca abria socket TLS de fato — o nome "Security" só se referia ao
+   token, não a criptografia de transporte. Rodava fixa na porta 8080
+   (netsimon-security.service) com fail2ban dedicado pro token.
+   Agora: wss.py abre TLS de verdade (ssl.SSLContext) com certificado
+   autoassinado gerado na instalação, por cima de um handshake WebSocket
+   RFC 6455 correto (Sec-WebSocket-Accept calculado, não fixo). Roda como
+   template systemd multi-porta (wss@<porta>.service), no mesmo padrão do
+   proxy@.service — porta padrão agora é 8443. O token e o fail2ban
+   dedicado saíram (não faziam sentido numa camada que já é criptografada
+   por TLS); o destino SSH continua configurável, agora via
+   /etc/painel/wss/wss.conf (EnvironmentFile do systemd).
+   Compatibilidade: instalações vindas de v39 ou anteriores têm o antigo
+   netsimon-security.service, token e jail do fail2ban removidos
+   automaticamente pelo install.sh/uninstall.sh.
+
+2) Menu lateral "Gerenciar Conexões" → "Protocolos"
+   Arquivos: painel.js, install.sh, e os 19 HTMLs com navegação lateral
+   Antes: ícone genérico (🔌), sem nenhuma descrição do que cada opção
+   (Xray, WebSocket, SlowDNS) faz.
+   Agora: renomeado para "Protocolos", com ícone customizado (imagem) e
+   tooltip descritivo em cada item do submenu (Xray, WebSocket, SlowDNS),
+   explicando a diferença entre eles ao passar o mouse. Xray também ganhou
+   ícone próprio (imagem baseada em VLESS) no lugar do satélite genérico,
+   e SlowDNS trocou a antena por um caramujo (ícone mais fiel ao que o
+   protocolo realmente é: o mais lento das opções disponíveis).
+
+3) Descrição no topo das páginas de protocolo
+   Arquivos: xray.html, websocket.html, slowdns.html
+   Agora: as três páginas ganharam um parágrafo curto no topo explicando
+   o que aquele protocolo faz e quando usá-lo, complementando os tooltips
+   do menu lateral.
+
+4) Revendedores e Bot WhatsApp — ícones e nomes
+   Arquivos: os 19 HTMLs com navegação lateral
+   Agora: ícone de Revendedores trocado de 🤝 para 🏪 (mais fiel à ideia de
+   "loja/revenda"); item "WhatsApp" renomeado para "Bot WhatsApp", no
+   mesmo padrão já usado pelo "Bot Telegram".

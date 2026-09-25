@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem("ns_theme")==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Netsimon — WhatsApp</title>
+<link rel="icon" type="image/png" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/painel.css?v=19">
+<style>.ta-mono { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:8px 10px; font-size:12px; font-family:inherit; }</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard.html" class="sidebar-logo" title="Início">
+      <div class="logo-icon"><img src="/img/logo.png" alt="Painel Netsimon"></div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="/dashboard.html" class="nav-item" data-page="dashboard">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-home.png" alt="Início"></span><span>Início</span>
+      </a>
+      <a href="/usuarios.html" class="nav-item" data-page="usuarios">
+        <span class="nav-icon">👤</span><span>Usuários</span>
+      </a>
+      <a href="/todos-usuarios.html" class="nav-item" data-page="todos-usuarios">
+        <span class="nav-icon">👥</span><span>Todos os Usuários</span>
+      </a>
+      <a href="/revendedores.html" class="nav-item reseller-manage-only" data-page="revendedores">
+        <span class="nav-icon">🏪</span><span>Revendedores</span>
+      </a>
+      <a href="/dispositivos.html" class="nav-item" data-page="dispositivos">
+        <span class="nav-icon">📵</span><span>Dispositivos</span>
+      </a>
+      <a href="/xray.html" class="nav-item admin-only" data-page="xray">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-xray.png" alt="Xray"></span><span>Xray</span>
+      </a>
+      <a href="/servidores.html" class="nav-item admin-only" data-page="servidores">
+        <span class="nav-icon">🖧</span><span>Servidores</span>
+      </a>
+      <a href="/diagnostico.html" class="nav-item" data-page="diagnostico">
+        <span class="nav-icon">🛠️</span><span>Manutenção</span>
+      </a>
+      <a href="/whatsapp.html" class="nav-item" data-page="whatsapp">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-whatsapp.png" alt="Bot WhatsApp"></span><span>Bot WhatsApp</span>
+      </a>
+      <a href="/campanhas.html" class="nav-item" data-page="campanhas">
+        <span class="nav-icon">📣</span><span>Campanhas</span>
+      </a>
+      <a href="/app.html" class="nav-item" data-page="app">
+        <span class="nav-icon">📱</span><span>Aplicativo</span>
+      </a>
+      <a href="/backup.html" class="nav-item admin-only" data-page="backup">
+        <span class="nav-icon">💾</span><span>Backup</span>
+      </a>
+      <a href="/bot.html" class="nav-item admin-only" data-page="bot">
+        <span class="nav-icon">🤖</span><span>Bot Telegram</span>
+      </a>
+      <a href="/logs.html" class="nav-item admin-only" data-page="logs">
+        <span class="nav-icon">📋</span><span>Logs</span>
+      </a>
+      <a href="#" class="nav-item admin-only" data-page="terminal" onclick="openTerminal(); return false;">
+        <span class="nav-icon">🖥️</span><span>Terminal</span>
+      </a>
+      <a href="/ia.html" class="nav-item" data-page="ia">
+        <span class="nav-icon">✨</span><span>IA</span>
+      </a>
+      <!-- Item 4: menu novo, exclusivo do admin (não é recurso por revendedor). -->
+      <a href="/material.html" class="nav-item admin-only" data-page="material">
+        <span class="nav-icon">🗃️</span><span>Material</span>
+      </a>
+      <a href="/configuracoes.html" class="nav-item admin-only" data-page="config">
+        <span class="nav-icon">⚙️</span><span>Configurações</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">👑</span>
+        <div>
+          <div class="user-name" id="sidebar-username">–</div>
+          <div class="user-role" id="sidebar-role">–</div>
+        </div>
+      </div>
+      <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema" onclick="toggleTheme()">☀️</button>
+      <button class="btn-logout" id="btn-logout" title="Sair">⏻</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="burger" id="burger">☰</button>
+        <h1 class="page-title">Notificações via WhatsApp</h1>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="card-panel" style="padding:14px 18px">
+        <p class="text-sm text-muted" style="margin:0">
+          Pareie o WhatsApp deste painel (multi-dispositivo, igual ao WhatsApp Web) para enviar avisos automáticos
+          de vencimento aos seus clientes, com a chave PIX para renovação. Cada painel (admin ou revendedor) usa
+          o seu próprio número — o pareamento de um revendedor não interfere no de outro.
+        </p>
+      </div>
+
+      <div class="section-grid two-col">
+        <div class="card-panel" data-panel-id="pareamento">
+          <div class="card-panel-header"><span>📶 Pareamento</span></div>
+          <div style="padding:18px; text-align:center;">
+            <div id="wa-status-connected" style="display:none">
+              <div style="font-size:40px; margin-bottom:8px;">✅</div>
+              <div class="text-sm">Conectado como <strong id="wa-phone">–</strong></div>
+              <button class="btn btn-danger btn-sm" style="margin-top:14px" onclick="waLogout()">Desconectar</button>
+            </div>
+            <div id="wa-status-disconnected">
+              <div id="wa-qr-box" style="min-height:220px; display:flex; align-items:center; justify-content:center;">
+                <span class="text-muted">Gerando QR Code…</span>
+              </div>
+              <button id="wa-pair-btn" class="btn btn-primary btn-sm" style="margin-top:14px; display:none" onclick="pairWhatsapp()">🔗 Parear / Gerar novo QR Code</button>
+              <p class="text-sm text-muted" style="margin-top:10px">
+                Abra o WhatsApp no celular → Configurações → Dispositivos conectados → Conectar dispositivo, e
+                escaneie o código acima.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-panel" data-panel-id="avisos-vencimento">
+          <div class="card-panel-header"><span>⚙️ Avisos de Vencimento (cliente)</span></div>
+          <div class="form-grid" style="padding:16px 18px">
+            <div class="form-field">
+              <label><input type="checkbox" id="wa-enabled" style="width:auto; margin-right:6px"> Ativar envio automático de avisos de vencimento</label>
+            </div>
+            <div class="form-field">
+              <label>Avisar com quantos dias de antecedência</label>
+              <input type="number" id="wa-days" min="0" value="1">
+            </div>
+            <div class="form-field">
+              <label>Chave PIX para renovação</label>
+              <input type="text" id="wa-pix" placeholder="ex: chave@pix.com ou telefone">
+            </div>
+            <div class="form-field">
+              <label>Mensagem (use {nome}, {login}, {dias_txt}, {vencimento}, {pix})</label>
+              <textarea id="wa-template" rows="6" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:10px 12px; font-size:13px; font-family:inherit;"></textarea>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-primary btn-sm" onclick="saveWaConfig()">💾 Salvar</button>
+              <button class="btn btn-ghost btn-sm" onclick="openModal('modal-wa-test')">📤 Enviar teste</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-grid two-col">
+        <div class="card-panel" data-panel-id="bot-autoatendimento">
+          <div class="card-panel-header"><span>🤖 Bot de Autoatendimento</span></div>
+          <div class="form-grid" style="padding:16px 18px">
+            <div class="text-sm text-muted" style="margin:0">
+              Quando ativado, o bot responde sozinho às mensagens que os clientes mandam pro seu WhatsApp pareado:
+              gera teste automático (respeitando sua cota), informa vencimento, manda o APK/link do app, vende o
+              plano mensal e libera o acesso automaticamente ao receber o comprovante do PIX (foto). Quando não
+              entende algo, encaminha pra você (atendimento humano).
+            </div>
+            <div class="form-field">
+              <label><input type="checkbox" id="bot-enabled" style="width:auto; margin-right:6px"> Ativar bot de autoatendimento</label>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label>Duração do teste automático (minutos)</label>
+                <input type="number" id="bot-test-minutes" min="10" value="60">
+              </div>
+              <div class="form-field">
+                <label>Intervalo entre testes por número (horas)</label>
+                <input type="number" id="bot-cooldown" min="1" value="24">
+              </div>
+            </div>
+            <div class="form-field">
+              <label>Mensagem de menu (comando não reconhecido)</label>
+              <textarea id="bot-menu" rows="5" class="ta-mono"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Mensagem ao gerar teste (use {login}, {senha}, {minutos}, {uuid})</label>
+              <textarea id="bot-test-msg" rows="5" class="ta-mono"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Resposta "vencimento" — encontrado (use {login}, {dias_txt}, {vencimento})</label>
+              <textarea id="bot-status-found" rows="2" class="ta-mono"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Resposta "vencimento" — não encontrado</label>
+              <textarea id="bot-status-notfound" rows="2" class="ta-mono"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Resposta "renovar" — cliente já ativo (use {pix})</label>
+              <textarea id="bot-renew" rows="3" class="ta-mono"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Resposta quando a cota está cheia</label>
+              <textarea id="bot-quota-full" rows="2" class="ta-mono"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Resposta quando o número já pegou teste recente</label>
+              <textarea id="bot-cooldown-msg" rows="2" class="ta-mono"></textarea>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="saveBotConfig()">💾 Salvar configuração do bot</button>
+          </div>
+        </div>
+
+        <div class="card-panel" data-panel-id="apk-link">
+          <div class="card-panel-header"><span>📲 APK / Link do Aplicativo</span></div>
+          <div class="form-grid" style="padding:16px 18px">
+            <div class="text-sm text-muted" style="margin:0">
+              Quando o cliente pedir o app (palavras como "app", "apk", "aplicativo", "baixar", "download", "link"),
+              o bot envia esta mensagem com os links já cadastrados em Aplicativo.
+            </div>
+            <div class="form-field">
+              <label>Mensagem (use {apk_android}, {apk_iphone})</label>
+              <textarea id="bot-apk-msg" rows="5" class="ta-mono"></textarea>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="saveBotConfig()">💾 Salvar</button>
+          </div>
+        </div>
+
+        <div class="card-panel" data-panel-id="comandos-personalizados">
+          <div class="card-panel-header"><span>🔧 Comandos Personalizados</span></div>
+          <div class="form-grid" style="padding:16px 18px">
+            <div class="text-sm text-muted" style="margin:0">
+              Cadastre aqui palavra(s)-chave próprias e a resposta fixa que o bot deve mandar quando o
+              cliente digitar uma delas — ex: "quando digitar <b>claro</b>, responda: não trabalhamos com
+              essa operadora". A resposta é sempre a mesma, sempre enviada (não depende da IA estar ligada
+              nem de interpretação) — diferente de "Treinar a IA" (na tela de IA), que é só uma sugestão de
+              contexto pra IA usar como achar melhor. Roda depois dos comandos oficiais do bot (teste,
+              vencimento, apk, mensal, renovar), então uma palavra-chave sua não sobrescreve esses por
+              acidente.
+            </div>
+            <div class="form-field">
+              <label>Palavra(s)-chave (separe por vírgula se for mais de uma)</label>
+              <input type="text" id="custom-cmd-keywords" placeholder='Ex: claro, operadora claro'>
+            </div>
+            <div class="form-field">
+              <label>Resposta do bot</label>
+              <textarea id="custom-cmd-reply" rows="3" class="ta-mono" placeholder="Digite exatamente o que o bot deve responder..."></textarea>
+            </div>
+            <div>
+              <button class="btn btn-primary btn-sm" onclick="addCustomCommand()">➕ Adicionar</button>
+            </div>
+            <div id="custom-cmd-list" class="text-sm text-muted">Carregando…</div>
+          </div>
+        </div>
+
+        <div class="card-panel" data-panel-id="plano-mensal">
+          <div class="card-panel-header"><span>💰 Plano Mensal + Comprovante Automático</span></div>
+          <div class="form-grid" style="padding:16px 18px">
+            <div class="text-sm text-muted" style="margin:0">
+              Quando o cliente novo pedir pra contratar (palavras como "mensal", "assinar", "contratar", "plano",
+              "comprar"), o bot manda a chave PIX e fica aguardando o <strong>comprovante (foto)</strong>.
+              Assim que a imagem chega, o acesso (com a duração configurada abaixo) é criado — ou renovado, se o
+              número já tiver um login vinculado — <strong>automaticamente</strong>, sem precisar de aprovação manual.
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label>Duração do plano (dias)</label>
+                <input type="number" id="bot-plan-days" min="1" value="30">
+              </div>
+              <div class="form-field">
+                <label>Preço exibido (R$, texto livre)</label>
+                <input type="text" id="bot-plan-price" placeholder="ex: 20,00">
+              </div>
+            </div>
+            <div class="form-field">
+              <label>Mensagem ao pedir o plano (use {dias}, {preco}, {pix})</label>
+              <textarea id="bot-plan-msg" rows="5" class="ta-mono"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Lembrete enquanto aguarda o comprovante (se o cliente mandar texto em vez de foto)</label>
+              <textarea id="bot-plan-waiting-msg" rows="2" class="ta-mono"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Mensagem ao confirmar o pagamento e liberar o acesso (use {login}, {senha}, {uuid}, {dias}, {vencimento})</label>
+              <textarea id="bot-payment-received-msg" rows="4" class="ta-mono"></textarea>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="saveBotConfig()">💾 Salvar</button>
+          </div>
+        </div>
+
+        <div class="card-panel" data-panel-id="vencimento-nome-exato">
+          <div class="card-panel-header"><span>🔎 Vencimento por Nome Exato + Segurança do Comprovante</span></div>
+          <div class="form-grid" style="padding:16px 18px">
+            <div class="text-sm text-muted" style="margin:0">
+              Quando o cliente pergunta o vencimento, o bot pede o <strong>nome exato do usuário</strong> em vez de
+              adivinhar pelo telefone (mais acertivo, já que um número pode ter tido mais de um acesso ao longo do
+              tempo). E antes de liberar um acesso automaticamente pelo comprovante do PIX, o bot roda uma checagem
+              por OCR (Tesseract, local e gratuito) na imagem — só confirma se achar palavras típicas de
+              comprovante bancário. Se não achar, pede uma foto mais nítida (até 3 tentativas, depois chama um
+              atendente). <strong>Requer o pacote <code>tesseract-ocr</code> instalado no servidor</strong>
+              (<code>apt install tesseract-ocr tesseract-ocr-por</code>) — sem ele, por segurança, o bot encaminha
+              direto pra um atendente em vez de liberar sem checar.
+            </div>
+            <div class="form-field">
+              <label>Mensagem pedindo o nome exato do usuário (consulta de vencimento)</label>
+              <textarea id="bot-ask-username-msg" rows="2" class="ta-mono"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Mensagem pedindo um nome pra criar o acesso (quando não dá pra usar o nome do contato)</label>
+              <textarea id="bot-ask-name-access-msg" rows="2" class="ta-mono"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Mensagem quando o comprovante não é reconhecido pelo OCR</label>
+              <textarea id="bot-invalid-proof-msg" rows="2" class="ta-mono"></textarea>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="saveBotConfig()">💾 Salvar</button>
+          </div>
+        </div>
+
+        <div class="card-panel" data-panel-id="suporte-encaminhamento">
+          <div class="card-panel-header"><span>🙋 Suporte (print) + Encaminhamento pra Atendente</span></div>
+          <div class="form-grid" style="padding:16px 18px">
+            <div class="text-sm text-muted" style="margin:0">
+              Quando o cliente pedir ajuda (palavras como "suporte", "ajuda", "não funciona", "erro", "problema"),
+              o bot pede um print da tela inicial do app e, ao recebê-lo, encaminha o atendimento pra você — o bot
+              fica em silêncio com esse número até você reassumir manualmente (veja a lista abaixo). O mesmo
+              acontece quando o bot simplesmente não reconhece a mensagem do cliente.
+            </div>
+            <div class="form-field">
+              <label>Mensagem pedindo o print da tela inicial</label>
+              <textarea id="bot-print-request-msg" rows="2" class="ta-mono"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Lembrete enquanto aguarda o print (se o cliente mandar texto em vez de foto)</label>
+              <textarea id="bot-print-waiting-msg" rows="2" class="ta-mono"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Mensagem ao receber o print (antes de encaminhar pro atendente)</label>
+              <textarea id="bot-print-received-msg" rows="2" class="ta-mono"></textarea>
+            </div>
+            <div class="form-field">
+              <label>Mensagem de encaminhamento (comando não reconhecido)</label>
+              <textarea id="bot-handoff-msg" rows="2" class="ta-mono"></textarea>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="saveBotConfig()">💾 Salvar</button>
+          </div>
+        </div>
+
+        <div class="card-panel" data-panel-id="atendimentos-aguardando">
+          <div class="card-panel-header">
+            <span>⏳ Atendimentos Aguardando Atendente</span>
+            <div style="display:flex; gap:8px">
+              <button class="btn btn-primary btn-sm" onclick="resumeAllBotHandoffs()">✅ Reativar todos</button>
+              <button class="btn btn-ghost btn-sm" onclick="loadPendingHandoffs()">🔄 Atualizar</button>
+            </div>
+          </div>
+          <div style="padding:16px 18px">
+            <div class="text-sm text-muted" style="margin:0 0 10px">
+              Contatos que o bot encaminhou pra atendimento humano. Depois de responder pelo WhatsApp normalmente,
+              clique em "Reativar bot" pra esse número voltar a responder sozinho (ou "Reativar todos" pra fazer
+              isso de uma vez com todo mundo da lista). Se ninguém reativar manualmente, o bot volta a responder
+              sozinho de qualquer forma depois de 12h sem atividade humana nesse contato.
+            </div>
+            <div id="pending-list" class="text-sm text-muted">Carregando…</div>
+          </div>
+        </div>
+
+        <div class="card-panel" data-panel-id="avisos-eventos">
+          <div class="card-panel-header"><span>🔔 Avisos de Eventos do Painel/Servidor</span></div>
+          <div class="form-grid" style="padding:16px 18px">
+            <div class="text-sm text-muted" style="margin:0">
+              Receba um WhatsApp direto no SEU número (não do cliente) quando algo importante acontecer:
+              <span class="admin-only">serviço caiu, disco cheio, </span>
+              seu painel foi suspenso/reativado, ou sua cota está quase no limite.
+            </div>
+            <div class="form-field">
+              <label><input type="checkbox" id="alert-enabled" style="width:auto; margin-right:6px"> Ativar avisos de eventos</label>
+            </div>
+            <div class="form-field">
+              <label>Seu número pra receber os avisos (com DDI+DDD)</label>
+              <input type="text" id="alert-phone" placeholder="ex: 5511999999999">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="saveAlertConfig()">💾 Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel" data-panel-id="requisito-servidor">
+        <div class="card-panel-header"><span>ℹ️ Requisito no servidor</span></div>
+        <div style="padding:14px 18px" class="text-sm text-muted">
+          Este recurso depende do microserviço <code>whatsapp_bot.js</code> (Node.js + Baileys) incluído neste
+          pacote, rodando localmente na porta 5055. Instale com <code>npm install</code> na raiz do painel e
+          inicie com <code>node whatsapp_bot.js</code> (ou registre o serviço <code>whatsapp-bot.service</code>
+          incluído para iniciar junto com o servidor).
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal-wa-test">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">📤 Enviar mensagem de teste</span>
+      <button class="modal-close" onclick="closeModal('modal-wa-test')">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Número (com DDI e DDD, só números)</label>
+        <input type="text" id="wa-test-phone" placeholder="ex: 5511999999999">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-wa-test')">Cancelar</button>
+      <button class="btn btn-primary" onclick="sendWaTest()">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/painel.js"></script>
+<script>
+let _waPollTimer = null;
+
+async function loadWaConfig() {
+  const cfg = await api("/whatsapp/config");
+  if (!cfg) return;
+  document.getElementById("wa-enabled").checked = !!cfg.enabled;
+  document.getElementById("wa-days").value = cfg.days_before ?? 1;
+  document.getElementById("wa-pix").value = cfg.pix_key || "";
+  document.getElementById("wa-template").value = cfg.message_template || "";
+
+  document.getElementById("bot-enabled").checked = !!cfg.bot_enabled;
+  document.getElementById("bot-test-minutes").value = cfg.bot_test_minutes ?? 60;
+  document.getElementById("bot-cooldown").value = cfg.bot_cooldown_hours ?? 24;
+  document.getElementById("bot-menu").value = cfg.bot_menu_message || "";
+  document.getElementById("bot-test-msg").value = cfg.bot_test_message || "";
+  document.getElementById("bot-status-found").value = cfg.bot_status_found || "";
+  document.getElementById("bot-status-notfound").value = cfg.bot_status_not_found || "";
+  document.getElementById("bot-renew").value = cfg.bot_renew_message || "";
+  document.getElementById("bot-quota-full").value = cfg.bot_quota_full_message || "";
+  document.getElementById("bot-cooldown-msg").value = cfg.bot_cooldown_message || "";
+
+  document.getElementById("bot-apk-msg").value = cfg.bot_apk_message || "";
+
+  document.getElementById("bot-plan-days").value = cfg.bot_plan_days ?? 30;
+  document.getElementById("bot-plan-price").value = cfg.bot_plan_price || "";
+  document.getElementById("bot-plan-msg").value = cfg.bot_plan_message || "";
+  document.getElementById("bot-plan-waiting-msg").value = cfg.bot_plan_waiting_message || "";
+  document.getElementById("bot-payment-received-msg").value = cfg.bot_payment_received_message || "";
+
+  document.getElementById("bot-print-request-msg").value = cfg.bot_print_request_message || "";
+  document.getElementById("bot-print-waiting-msg").value = cfg.bot_print_waiting_message || "";
+  document.getElementById("bot-print-received-msg").value = cfg.bot_print_received_message || "";
+  document.getElementById("bot-handoff-msg").value = cfg.bot_handoff_message || "";
+
+  document.getElementById("bot-ask-username-msg").value = cfg.bot_ask_username_message || "";
+  document.getElementById("bot-ask-name-access-msg").value = cfg.bot_ask_name_for_access_message || "";
+  document.getElementById("bot-invalid-proof-msg").value = cfg.bot_invalid_proof_message || "";
+
+  document.getElementById("alert-enabled").checked = !!cfg.alerts_enabled;
+  document.getElementById("alert-phone").value = cfg.alert_phone || "";
+
+  loadPendingHandoffs();
+}
+
+async function loadPendingHandoffs() {
+  const el = document.getElementById("pending-list");
+  el.textContent = "Carregando…";
+  const list = await api("/whatsapp/bot/pending");
+  if (!list) return;
+  if (!list.length) {
+    el.textContent = "Nenhum atendimento aguardando no momento. ✅";
+    return;
+  }
+  el.innerHTML = list.map(item => `
+    <div class="form-row" style="align-items:center; border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:8px;">
+      <div style="flex:1">
+        <strong>${item.phone}</strong><br>
+        <span class="text-muted">desde ${item.since ? new Date(item.since * 1000).toLocaleString("pt-BR") : "–"}</span>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="resumeBotFor('${item.phone}')">✅ Reativar bot</button>
+    </div>
+  `).join("");
+}
+
+async function resumeBotFor(phone) {
+  const r = await api("/whatsapp/bot/resume", "POST", { phone });
+  if (!r) return;
+  toast("Bot reativado pra esse número!");
+  loadPendingHandoffs();
+}
+
+async function resumeAllBotHandoffs() {
+  const r = await api("/whatsapp/bot/resume-all", "POST", {});
+  if (!r) return;
+  toast(r.reativados ? `${r.reativados} contato(s) reativado(s)!` : "Nenhum atendimento pendente pra reativar.");
+  loadPendingHandoffs();
+}
+
+async function saveWaConfig() {
+  const r = await api("/whatsapp/config", "POST", {
+    enabled: document.getElementById("wa-enabled").checked,
+    days_before: parseInt(document.getElementById("wa-days").value) || 1,
+    pix_key: document.getElementById("wa-pix").value.trim(),
+    message_template: document.getElementById("wa-template").value
+  });
+  if (r) toast("Configuração salva!");
+}
+
+async function saveBotConfig() {
+  const r = await api("/whatsapp/config", "POST", {
+    bot_enabled: document.getElementById("bot-enabled").checked,
+    bot_test_minutes: parseInt(document.getElementById("bot-test-minutes").value) || 60,
+    bot_cooldown_hours: parseInt(document.getElementById("bot-cooldown").value) || 24,
+    bot_menu_message: document.getElementById("bot-menu").value,
+    bot_test_message: document.getElementById("bot-test-msg").value,
+    bot_status_found: document.getElementById("bot-status-found").value,
+    bot_status_not_found: document.getElementById("bot-status-notfound").value,
+    bot_renew_message: document.getElementById("bot-renew").value,
+    bot_quota_full_message: document.getElementById("bot-quota-full").value,
+    bot_cooldown_message: document.getElementById("bot-cooldown-msg").value,
+    bot_apk_message: document.getElementById("bot-apk-msg").value,
+    bot_plan_days: parseInt(document.getElementById("bot-plan-days").value) || 30,
+    bot_plan_price: document.getElementById("bot-plan-price").value.trim(),
+    bot_plan_message: document.getElementById("bot-plan-msg").value,
+    bot_plan_waiting_message: document.getElementById("bot-plan-waiting-msg").value,
+    bot_payment_received_message: document.getElementById("bot-payment-received-msg").value,
+    bot_print_request_message: document.getElementById("bot-print-request-msg").value,
+    bot_print_waiting_message: document.getElementById("bot-print-waiting-msg").value,
+    bot_print_received_message: document.getElementById("bot-print-received-msg").value,
+    bot_handoff_message: document.getElementById("bot-handoff-msg").value,
+    bot_ask_username_message: document.getElementById("bot-ask-username-msg").value,
+    bot_ask_name_for_access_message: document.getElementById("bot-ask-name-access-msg").value,
+    bot_invalid_proof_message: document.getElementById("bot-invalid-proof-msg").value
+  });
+  if (r) toast("Bot configurado!");
+}
+
+async function saveAlertConfig() {
+  const r = await api("/whatsapp/config", "POST", {
+    alerts_enabled: document.getElementById("alert-enabled").checked,
+    alert_phone: document.getElementById("alert-phone").value.trim()
+  });
+  if (r) toast("Avisos configurados!");
+}
+
+async function sendWaTest() {
+  const phone = document.getElementById("wa-test-phone").value.trim();
+  if (!phone) { toast("Informe o número", true); return; }
+  const r = await api("/whatsapp/test", "POST", { phone, nome: "Cliente Teste", login: "teste" });
+  if (r) { toast("Mensagem de teste enviada!"); closeModal("modal-wa-test"); }
+}
+
+async function waLogout() {
+  if (!confirm2("Desconectar este número do painel?")) return;
+  await api("/whatsapp/logout", "POST");
+  document.getElementById("wa-status-connected").style.display = "none";
+  document.getElementById("wa-status-disconnected").style.display = "";
+  pollWaStatus();
+}
+
+async function pollWaStatus() {
+  const r = await api("/whatsapp/qr");
+  if (!r) return;
+  const pairBtn = document.getElementById("wa-pair-btn");
+  if (r.connected) {
+    document.getElementById("wa-status-connected").style.display = "";
+    document.getElementById("wa-status-disconnected").style.display = "none";
+    document.getElementById("wa-phone").textContent = r.phone || "–";
+    pairBtn.style.display = "none";
+  } else {
+    document.getElementById("wa-status-connected").style.display = "none";
+    document.getElementById("wa-status-disconnected").style.display = "";
+    const box = document.getElementById("wa-qr-box");
+    if (r.timedOut) {
+      box.innerHTML = `<span class="text-muted">${r.message || "Tempo de leitura do QR esgotado."}</span>`;
+      pairBtn.style.display = "";
+    } else {
+      box.innerHTML = r.qr
+        ? `<img src="${r.qr}" style="width:220px;height:220px;border-radius:8px;background:#fff;padding:8px">`
+        : `<span class="text-muted">${r.message || r.error || "Gerando QR Code…"}</span>`;
+      pairBtn.style.display = "none";
+    }
+  }
+}
+
+async function pairWhatsapp() {
+  const btn = document.getElementById("wa-pair-btn");
+  btn.disabled = true; btn.textContent = "Gerando novo QR Code…";
+  await api("/whatsapp/pair", "POST");
+  btn.disabled = false; btn.textContent = "🔗 Parear / Gerar novo QR Code";
+  pollWaStatus();
+}
+
+// ── Comandos Personalizados do bot ──────────────────────────────────
+async function loadCustomCommands() {
+  const el = document.getElementById("custom-cmd-list");
+  const r = await api("/whatsapp/custom-commands");
+  if (!r) { el.textContent = "Não foi possível carregar."; return; }
+  const itens = r.itens || [];
+  if (!itens.length) {
+    el.innerHTML = `<span class="text-muted">Nenhum comando personalizado adicionado ainda.</span>`;
+    return;
+  }
+  el.innerHTML = itens.map(it => `
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:8px 10px; background:var(--surface2); border-radius:8px; border:1px solid var(--border); margin-bottom:6px;">
+      <div>
+        <div class="text-sm"><b>${escapeHtml(it.keywords.join(", "))}</b></div>
+        <div class="text-sm text-muted">${escapeHtml(it.reply)}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="removeCustomCommand('${it.id}')" title="Remover">🗑️</button>
+    </div>
+  `).join("");
+}
+
+async function addCustomCommand() {
+  const keywords = document.getElementById("custom-cmd-keywords").value.trim();
+  const reply = document.getElementById("custom-cmd-reply").value.trim();
+  if (!keywords) { toast("Informe pelo menos uma palavra-chave", true); return; }
+  if (!reply) { toast("Escreva a resposta que o bot deve enviar", true); return; }
+  const r = await api("/whatsapp/custom-commands", "POST", { keywords, reply });
+  if (!r) return;
+  document.getElementById("custom-cmd-keywords").value = "";
+  document.getElementById("custom-cmd-reply").value = "";
+  toast("Comando personalizado adicionado!");
+  loadCustomCommands();
+}
+
+async function removeCustomCommand(id) {
+  const r = await api(`/whatsapp/custom-commands/${id}`, "DELETE");
+  if (!r) return;
+  loadCustomCommands();
+}
+
+initPage();
+loadWaConfig();
+loadCustomCommands();
+pollWaStatus();
+_waPollTimer = setInterval(pollWaStatus, 5000);
+</script>
+</body>
+</html>

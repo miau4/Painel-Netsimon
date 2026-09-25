@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem("ns_theme")==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Netsimon — Backup</title>
+<link rel="icon" type="image/png" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/painel.css?v=19">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard.html" class="sidebar-logo" title="Início">
+      <div class="logo-icon"><img src="/img/logo.png" alt="Painel Netsimon"></div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="/dashboard.html" class="nav-item active" data-page="dashboard">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-home.png" alt="Início"></span><span>Início</span>
+      </a>
+      <a href="/usuarios.html" class="nav-item" data-page="usuarios">
+        <span class="nav-icon">👤</span><span>Usuários</span>
+      </a>
+      <a href="/todos-usuarios.html" class="nav-item" data-page="todos-usuarios">
+        <span class="nav-icon">👥</span><span>Todos os Usuários</span>
+      </a>
+      <a href="/revendedores.html" class="nav-item reseller-manage-only" data-page="revendedores">
+        <span class="nav-icon">🏪</span><span>Revendedores</span>
+      </a>
+      <a href="/dispositivos.html" class="nav-item" data-page="dispositivos">
+        <span class="nav-icon">📵</span><span>Dispositivos</span>
+      </a>
+      <a href="/xray.html" class="nav-item admin-only" data-page="xray">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-xray.png" alt="Xray"></span><span>Xray</span>
+      </a>
+      <a href="/servidores.html" class="nav-item admin-only" data-page="servidores">
+        <span class="nav-icon">🖧</span><span>Servidores</span>
+      </a>
+      <a href="/diagnostico.html" class="nav-item" data-page="diagnostico">
+        <span class="nav-icon">🛠️</span><span>Manutenção</span>
+      </a>
+      <a href="/whatsapp.html" class="nav-item" data-page="whatsapp">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-whatsapp.png" alt="Bot WhatsApp"></span><span>Bot WhatsApp</span>
+      </a>
+      <a href="/campanhas.html" class="nav-item" data-page="campanhas">
+        <span class="nav-icon">📣</span><span>Campanhas</span>
+      </a>
+      <a href="/app.html" class="nav-item" data-page="app">
+        <span class="nav-icon">📱</span><span>Aplicativo</span>
+      </a>
+      <a href="/backup.html" class="nav-item admin-only" data-page="backup">
+        <span class="nav-icon">💾</span><span>Backup</span>
+      </a>
+      <a href="/bot.html" class="nav-item admin-only" data-page="bot">
+        <span class="nav-icon">🤖</span><span>Bot Telegram</span>
+      </a>
+      <a href="/logs.html" class="nav-item admin-only" data-page="logs">
+        <span class="nav-icon">📋</span><span>Logs</span>
+      </a>
+      <a href="#" class="nav-item admin-only" data-page="terminal" onclick="openTerminal(); return false;">
+        <span class="nav-icon">🖥️</span><span>Terminal</span>
+      </a>
+      <a href="/ia.html" class="nav-item" data-page="ia">
+        <span class="nav-icon">✨</span><span>IA</span>
+      </a>
+      <!-- Item 4: menu novo, exclusivo do admin (não é recurso por revendedor). -->
+      <a href="/material.html" class="nav-item admin-only" data-page="material">
+        <span class="nav-icon">🗃️</span><span>Material</span>
+      </a>
+      <a href="/configuracoes.html" class="nav-item admin-only" data-page="config">
+        <span class="nav-icon">⚙️</span><span>Configurações</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">👑</span>
+        <div>
+          <div class="user-name" id="sidebar-username">–</div>
+          <div class="user-role" id="sidebar-role">–</div>
+        </div>
+      </div>
+      <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema" onclick="toggleTheme()">☀️</button>
+      <button class="btn-logout" id="btn-logout" title="Sair">⏻</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="burger" id="burger">☰</button>
+        <h1 class="page-title">Backup</h1>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="cards-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="card-panel" style="padding:20px; text-align:center; cursor:pointer" onclick="exportSql()">
+          <div style="font-size:28px; margin-bottom:8px">📄</div>
+          <div style="font-weight:600; margin-bottom:4px">Exportar SQL</div>
+          <div class="text-muted text-sm">Usuários, revendedores e dispositivos</div>
+        </div>
+        <div class="card-panel" style="padding:20px; text-align:center; cursor:pointer" onclick="document.getElementById('input-sql').click()">
+          <div style="font-size:28px; margin-bottom:8px">📥</div>
+          <div style="font-weight:600; margin-bottom:4px">Importar SQL</div>
+          <div class="text-muted text-sm">Restaura dados a partir de um .sql</div>
+        </div>
+        <div class="card-panel" style="padding:20px; text-align:center; cursor:pointer" onclick="exportAll()">
+          <div style="font-size:28px; margin-bottom:8px">📦</div>
+          <div style="font-weight:600; margin-bottom:4px">Exportar Tudo</div>
+          <div class="text-muted text-sm">Scripts, configs, Xray e certificados</div>
+        </div>
+        <div class="card-panel" style="padding:20px; text-align:center; cursor:pointer" onclick="document.getElementById('input-all').click()">
+          <div style="font-size:28px; margin-bottom:8px">📤</div>
+          <div style="font-weight:600; margin-bottom:4px">Importar Tudo</div>
+          <div class="text-muted text-sm">Restaura backup completo (.tar.gz)</div>
+        </div>
+      </div>
+      <input type="file" id="input-sql" accept=".sql" style="display:none" onchange="importSql(this.files[0])">
+      <input type="file" id="input-all" accept=".tar.gz,.gz" style="display:none" onchange="importAll(this.files[0])">
+
+      <div class="card-panel" style="margin-top:20px">
+        <div class="card-panel-header"><span>ℹ️ Sobre os formatos</span></div>
+        <div style="padding:18px" class="text-sm text-muted">
+          <p><strong>SQL</strong> — apenas os dados (usuários, senha do admin, revendedores, dispositivos). Leve, rápido, ideal para backups frequentes.</p>
+          <p class="gap-top"><strong>Tudo</strong> — inclui também scripts, configurações do Xray e certificados SSL. Não inclui os APKs enviados em Aplicativo (podem ser reenviados). Use para recuperação completa de desastre.</p>
+        </div>
+      </div>
+
+      <div class="card-panel" style="margin-top:20px">
+        <div class="card-panel-header"><span>🤖 Backup Automático via Telegram</span></div>
+        <div style="padding:18px" class="form-grid">
+          <div class="toggle-wrap">
+            <label class="toggle">
+              <input type="checkbox" id="bk-enabled">
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="text-sm">Ativar backup automático</span>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label>Chat ID (Telegram)</label>
+              <input type="text" id="bk-chatid" placeholder="ex: 123456789">
+            </div>
+            <div class="form-field">
+              <label>Intervalo (horas)</label>
+              <input type="number" id="bk-interval" value="24" min="1">
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Tipo de Backup</label>
+            <select id="bk-type">
+              <option value="sql">SQL (dados)</option>
+              <option value="all">Completo</option>
+            </select>
+          </div>
+          <div class="text-sm text-muted">
+            Usa o mesmo bot configurado em <strong>Bot Telegram</strong>. O arquivo é enviado automaticamente
+            para o Chat ID informado, no intervalo escolhido.
+          </div>
+          <div style="display:flex; gap:10px">
+            <button class="btn btn-primary" onclick="saveBackupConfig()">Salvar Configuração</button>
+            <button class="btn btn-secondary" id="btn-test-backup" onclick="testBackupNow()">📤 Testar envio agora</button>
+          </div>
+          <div id="test-backup-result" class="text-sm"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/painel.js"></script>
+<script>
+async function exportSql() {
+  // BUGFIX: antes não tinha try/catch — se o fetch falhasse por
+  // qualquer motivo (timeout, queda de rede, servidor reiniciando no
+  // meio), o erro morria em silêncio: nenhum toast, nada acontecia
+  // visivelmente. Agora todo caminho de falha sempre avisa o admin.
+  toast("Gerando backup SQL…");
+  try {
+    const r = await fetch("/api/backup/export-sql", { headers: { "X-Token": getToken() } });
+    if (!r.ok) {
+      let msg = "Falha ao gerar backup";
+      try { msg = (await r.json()).error || msg; } catch (e) {}
+      toast(msg, true);
+      return;
+    }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `netsimon_backup_${Date.now()}.sql`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast("Backup SQL baixado!");
+  } catch (e) {
+    toast("Erro de conexão ao gerar o backup — tente de novo", true);
+  }
+}
+
+async function exportAll() {
+  toast("Gerando backup completo — isso pode levar alguns segundos…");
+  try {
+    const r = await fetch("/api/backup/export-all", { headers: { "X-Token": getToken() } });
+    if (!r.ok) {
+      let msg = "Falha ao gerar backup";
+      try { msg = (await r.json()).error || msg; } catch (e) {}
+      toast(msg, true);
+      return;
+    }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `netsimon_backup_completo_${Date.now()}.tar.gz`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast("Backup completo baixado!");
+  } catch (e) {
+    toast("Erro de conexão ao gerar o backup — tente de novo", true);
+  }
+}
+
+async function importSql(file) {
+  if (!file) return;
+  if (!confirm2("Importar este SQL vai SOBRESCREVER usuários, revendedores e dispositivos atuais. Continuar?")) {
+    document.getElementById("input-sql").value = "";
+    return;
+  }
+  const fd = new FormData();
+  fd.append("file", file);
+  toast("Importando…");
+  try {
+    const r = await fetch("/api/backup/import-sql", { method: "POST", headers: { "X-Token": getToken() }, body: fd });
+    const data = await r.json();
+    if (!r.ok) { toast(data.error || "Falha ao importar", true); return; }
+    const p = data.restored.provisionados || {};
+    toast(`Importado: ${data.restored.usuarios} usuário(s), ${data.restored.resellers} revendedor(es), ${data.restored.devices} dispositivo(s) — provisionados no servidor: ${p.linux_criados || 0} conta(s) Linux, ${p.xray_adicionados || 0} client(s) Xray`);
+    if (p.pulados && p.pulados.length) {
+      alert(`Atenção: ${p.pulados.length} usuário(s) do dump NÃO puderam ser provisionados no servidor (login ou uuid inválido) e podem continuar sem autenticar:\n\n${p.pulados.join(", ")}`);
+    }
+  } catch (e) {
+    toast("Erro de conexão ao importar", true);
+  }
+  document.getElementById("input-sql").value = "";
+}
+
+async function importAll(file) {
+  if (!file) return;
+  if (!confirm2("Importar backup completo vai SOBRESCREVER toda a configuração do painel e do Xray, reiniciando os serviços. Continuar?")) {
+    document.getElementById("input-all").value = "";
+    return;
+  }
+  const fd = new FormData();
+  fd.append("file", file);
+  toast("Restaurando backup completo — isso pode levar um tempo…");
+  try {
+    const r = await fetch("/api/backup/import-all", { method: "POST", headers: { "X-Token": getToken() }, body: fd });
+    const data = await r.json();
+    if (!r.ok) { toast(data.error || "Falha ao importar", true); return; }
+    const p = data.provisionados || {};
+    toast(`Backup completo restaurado! Serviços reiniciados. Provisionados: ${p.linux_criados || 0} conta(s) Linux, ${p.xray_adicionados || 0} client(s) Xray`);
+    if (p.pulados && p.pulados.length) {
+      alert(`Atenção: ${p.pulados.length} usuário(s) do backup NÃO puderam ser provisionados no servidor (login ou uuid inválido) e podem continuar sem autenticar:\n\n${p.pulados.join(", ")}`);
+    }
+  } catch (e) {
+    toast("Erro de conexão ao importar", true);
+  }
+  document.getElementById("input-all").value = "";
+}
+
+async function loadBackupConfig() {
+  const cfg = await api("/backup/config");
+  if (!cfg) return;
+  document.getElementById("bk-enabled").checked = !!cfg.enabled;
+  document.getElementById("bk-chatid").value = cfg.chat_id || "";
+  document.getElementById("bk-interval").value = cfg.interval_hours || 24;
+  document.getElementById("bk-type").value = cfg.type || "sql";
+}
+
+async function saveBackupConfig() {
+  const data = {
+    enabled: document.getElementById("bk-enabled").checked,
+    chat_id: document.getElementById("bk-chatid").value.trim(),
+    interval_hours: parseInt(document.getElementById("bk-interval").value) || 24,
+    type: document.getElementById("bk-type").value
+  };
+  const r = await api("/backup/config", "POST", data);
+  if (!r) return;
+  toast("Configuração de backup automático salva!");
+}
+
+// BUG CORRIGIDO (Erro 504): antes essa função dava um único fetch e
+// ficava esperando ele responder — se o backend demorasse mais que o
+// timeout do proxy (Nginx/Cloudflare na frente do painel), o
+// navegador recebia 504 mesmo que o backup continuasse (ou já tivesse
+// sido enviado) no servidor. Agora /backup/send-now só dispara o
+// trabalho e volta na hora; aqui a gente consulta
+// /backup/send-now/status de tempos em tempos até terminar.
+async function testBackupNow() {
+  const btn = document.getElementById("btn-test-backup");
+  const resultEl = document.getElementById("test-backup-result");
+  btn.disabled = true;
+  btn.textContent = "Enviando…";
+  resultEl.innerHTML = "";
+
+  const started = await api("/backup/send-now", "POST", {});
+  if (!started || !started.ok) {
+    btn.disabled = false;
+    btn.textContent = "📤 Testar envio agora";
+    return; // api() já mostrou o toast com o erro (ex: sem Chat ID/token)
+  }
+
+  const poll = async () => {
+    const st = await api("/backup/send-now/status");
+    if (!st) {
+      btn.disabled = false;
+      btn.textContent = "📤 Testar envio agora";
+      return;
+    }
+    if (st.running) {
+      setTimeout(poll, 2000);
+      return;
+    }
+    btn.disabled = false;
+    btn.textContent = "📤 Testar envio agora";
+    const r = st.result;
+    if (r && r.ok) {
+      const partesInfo = r.partes > 1 ? ` em ${r.partes} partes (arquivo passou de 50MB)` : "";
+      resultEl.innerHTML = `<span style="color:var(--success,#4ade80)">✔ Enviado com sucesso (${r.tamanho_mb}MB)${partesInfo} — confira o Telegram.</span>`;
+      toast("Backup de teste enviado!");
+    } else {
+      const erro = (r && r.error) || "Falhou — verifique o Chat ID e se você já mandou /start pro bot.";
+      resultEl.innerHTML = `<span style="color:var(--danger,#f87171)">✘ ${erro}</span>`;
+    }
+  };
+  setTimeout(poll, 1500);
+}
+
+initPage();
+loadBackupConfig();
+</script>
+</body>
+</html>

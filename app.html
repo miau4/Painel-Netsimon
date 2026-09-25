@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem("ns_theme")==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Netsimon — Aplicativo</title>
+<link rel="icon" type="image/png" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/painel.css?v=19">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard.html" class="sidebar-logo" title="Início">
+      <div class="logo-icon"><img src="/img/logo.png" alt="Painel Netsimon"></div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="/dashboard.html" class="nav-item active" data-page="dashboard">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-home.png" alt="Início"></span><span>Início</span>
+      </a>
+      <a href="/usuarios.html" class="nav-item" data-page="usuarios">
+        <span class="nav-icon">👤</span><span>Usuários</span>
+      </a>
+      <a href="/todos-usuarios.html" class="nav-item" data-page="todos-usuarios">
+        <span class="nav-icon">👥</span><span>Todos os Usuários</span>
+      </a>
+      <a href="/revendedores.html" class="nav-item reseller-manage-only" data-page="revendedores">
+        <span class="nav-icon">🏪</span><span>Revendedores</span>
+      </a>
+      <a href="/dispositivos.html" class="nav-item" data-page="dispositivos">
+        <span class="nav-icon">📵</span><span>Dispositivos</span>
+      </a>
+      <a href="/xray.html" class="nav-item admin-only" data-page="xray">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-xray.png" alt="Xray"></span><span>Xray</span>
+      </a>
+      <a href="/servidores.html" class="nav-item admin-only" data-page="servidores">
+        <span class="nav-icon">🖧</span><span>Servidores</span>
+      </a>
+      <a href="/diagnostico.html" class="nav-item" data-page="diagnostico">
+        <span class="nav-icon">🛠️</span><span>Manutenção</span>
+      </a>
+      <a href="/whatsapp.html" class="nav-item" data-page="whatsapp">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-whatsapp.png" alt="Bot WhatsApp"></span><span>Bot WhatsApp</span>
+      </a>
+      <a href="/campanhas.html" class="nav-item" data-page="campanhas">
+        <span class="nav-icon">📣</span><span>Campanhas</span>
+      </a>
+      <a href="/app.html" class="nav-item" data-page="app">
+        <span class="nav-icon">📱</span><span>Aplicativo</span>
+      </a>
+      <a href="/backup.html" class="nav-item admin-only" data-page="backup">
+        <span class="nav-icon">💾</span><span>Backup</span>
+      </a>
+      <a href="/bot.html" class="nav-item admin-only" data-page="bot">
+        <span class="nav-icon">🤖</span><span>Bot Telegram</span>
+      </a>
+      <a href="/logs.html" class="nav-item admin-only" data-page="logs">
+        <span class="nav-icon">📋</span><span>Logs</span>
+      </a>
+      <a href="#" class="nav-item admin-only" data-page="terminal" onclick="openTerminal(); return false;">
+        <span class="nav-icon">🖥️</span><span>Terminal</span>
+      </a>
+      <a href="/ia.html" class="nav-item" data-page="ia">
+        <span class="nav-icon">✨</span><span>IA</span>
+      </a>
+      <!-- Item 4: menu novo, exclusivo do admin (não é recurso por revendedor). -->
+      <a href="/material.html" class="nav-item admin-only" data-page="material">
+        <span class="nav-icon">🗃️</span><span>Material</span>
+      </a>
+      <a href="/configuracoes.html" class="nav-item admin-only" data-page="config">
+        <span class="nav-icon">⚙️</span><span>Configurações</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">👑</span>
+        <div>
+          <div class="user-name" id="sidebar-username">–</div>
+          <div class="user-role" id="sidebar-role">–</div>
+        </div>
+      </div>
+      <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema" onclick="toggleTheme()">☀️</button>
+      <button class="btn-logout" id="btn-logout" title="Sair">⏻</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="burger" id="burger">☰</button>
+        <h1 class="page-title">Aplicativo Cliente</h1>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm admin-only" onclick="openModal('modal-upload')">⬆️ Enviar Nova Versão</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="card-panel">
+        <div style="padding:14px 18px" class="text-sm text-muted">
+          Envie o APK do aplicativo Painel Netsimon aqui. Revendedores enxergam esta mesma lista (somente leitura,
+          com botão de download). O link direto pode ser copiado e enviado ao cliente final sem necessidade
+          de login no painel.
+        </div>
+      </div>
+
+      <div class="card-panel" style="margin-top:16px">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Versão</th>
+                <th>Changelog</th>
+                <th>Tamanho</th>
+                <th>Enviado em</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="app-tbody">
+              <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-panel admin-only" style="margin-top:16px">
+        <div class="card-panel-header"><span>🔄 Endpoint de Auto-Update (uso futuro)</span></div>
+        <div style="padding:18px" class="text-sm text-muted">
+          O app pode consultar <span class="text-mono">GET /api/app/latest</span> (endpoint público, sem
+          autenticação) para checar automaticamente se há uma versão mais nova disponível e baixá-la.
+          Marque uma versão como "mais recente" na tabela acima para que ela seja retornada por esse endpoint.
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal: Upload -->
+<div class="modal-overlay" id="modal-upload">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">⬆️ Nova Versão do Aplicativo</span>
+      <button class="modal-close" onclick="closeModal('modal-upload')">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Versão (ex: 1.4.2)</label>
+        <input type="text" id="u-version" placeholder="1.4.2">
+      </div>
+      <div class="form-field">
+        <label>Changelog / Notas</label>
+        <textarea id="u-changelog" placeholder="O que mudou nesta versão..."></textarea>
+      </div>
+      <div class="form-field">
+        <label>Arquivo APK</label>
+        <input type="file" id="u-file" accept=".apk">
+      </div>
+      <div id="upload-progress" style="display:none">
+        <div class="progress-bar"><div class="progress-fill" id="upload-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-upload')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-upload" onclick="uploadApp()">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/painel.js"></script>
+<script>
+function fmtSize(bytes) {
+  if (!bytes) return "–";
+  const mb = bytes / (1024*1024);
+  return mb >= 1 ? `${mb.toFixed(1)} MB` : `${(bytes/1024).toFixed(0)} KB`;
+}
+
+async function loadVersions() {
+  const data = await api("/app/versions");
+  if (!data) return;
+
+  const tbody = document.getElementById("app-tbody");
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Nenhuma versão enviada ainda</td></tr>`;
+    return;
+  }
+
+  const origin = window.location.origin;
+
+  tbody.innerHTML = data.map(v => `
+    <tr>
+      <td><strong class="text-mono">${v.version}</strong></td>
+      <td class="text-sm" style="max-width:260px; white-space:normal">${v.changelog || "–"}</td>
+      <td class="text-sm">${fmtSize(v.size)}</td>
+      <td class="text-sm text-muted">${fmtDate(v.uploaded_at)}</td>
+      <td>${v.latest ? '<span class="badge badge-success">Mais recente</span>' : '<span class="badge badge-muted">Arquivada</span>'}</td>
+      <td style="display:flex; gap:6px; flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="copyText('${origin}${v.url}')">🔗 Copiar Link</button>
+        <a class="btn btn-ghost btn-sm" href="${v.url}" target="_blank">⬇️ Baixar</a>
+        <button class="btn btn-ghost btn-sm admin-only" onclick="setLatest('${v.version}')" ${v.latest ? "disabled" : ""}>⭐ Definir como atual</button>
+        <button class="btn btn-danger btn-sm admin-only" onclick="deleteVersion('${v.version}')">🗑</button>
+      </td>
+    </tr>
+  `).join("");
+
+  if (getRole() !== "admin") {
+    document.querySelectorAll(".admin-only").forEach(el => el.style.display = "none");
+  }
+}
+
+async function uploadApp() {
+  const version   = document.getElementById("u-version").value.trim();
+  const changelog = document.getElementById("u-changelog").value.trim();
+  const fileInput = document.getElementById("u-file");
+  const file      = fileInput.files[0];
+
+  if (!version) { toast("Informe a versão", true); return; }
+  if (!file)    { toast("Selecione o arquivo APK", true); return; }
+
+  const btn = document.getElementById("btn-upload");
+  btn.disabled = true; btn.textContent = "Enviando…";
+
+  const fd = new FormData();
+  fd.append("version", version);
+  fd.append("changelog", changelog);
+  fd.append("file", file);
+
+  try {
+    const r = await fetch("/api/app/upload", {
+      method: "POST",
+      headers: { "X-Token": getToken() },
+      body: fd
+    });
+    const data = await r.json();
+    if (!r.ok) { toast(data.error || "Erro ao enviar", true); return; }
+    toast(`Versão ${version} enviada!`);
+    closeModal("modal-upload");
+    document.getElementById("u-version").value = "";
+    document.getElementById("u-changelog").value = "";
+    fileInput.value = "";
+    loadVersions();
+  } catch (e) {
+    toast("Erro de conexão ao enviar arquivo", true);
+  } finally {
+    btn.disabled = false; btn.textContent = "Enviar";
+  }
+}
+
+async function setLatest(version) {
+  const r = await api(`/app/versions/${version}/latest`, "POST");
+  if (!r) return;
+  toast(`Versão ${version} definida como mais recente!`);
+  loadVersions();
+}
+
+async function deleteVersion(version) {
+  if (!confirm2(`Remover a versão ${version}? O link direto deixará de funcionar.`)) return;
+  const r = await api(`/app/versions/${version}`, "DELETE");
+  if (!r) return;
+  toast(`Versão ${version} removida!`);
+  loadVersions();
+}
+
+initPage();
+loadVersions();
+</script>
+</body>
+</html>

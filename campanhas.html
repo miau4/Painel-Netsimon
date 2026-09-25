@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem("ns_theme")==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Netsimon — Campanhas</title>
+<link rel="icon" type="image/png" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/painel.css?v=19">
+<style>
+  .ta-mono { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:8px 10px; font-size:12px; font-family:inherit; }
+  .badge-status { padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600; white-space:nowrap; }
+  .badge-rascunho    { background:#3a3a4a; color:#cfcfe0; }
+  .badge-agendada    { background:#3a2e4d; color:#c79fe8; }
+  .badge-enviando    { background:#1e4d3a; color:#7fe8b0; }
+  .badge-pausada     { background:#4d3f1e; color:#e8c97f; }
+  .badge-concluida   { background:#1e3a4d; color:#7fc7e8; }
+  .check-ok  { color:#7fe8b0; }
+  .check-no  { color:#666; }
+  .media-preview { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+  .campaign-row td { vertical-align:middle; }
+
+  /* ── Correção anti-corte por zoom (reforço local, caso painel.css do servidor
+     ainda esteja desatualizado) ─────────────────────────────────────────── */
+  .main { min-width: 0; min-height: 0; }
+  .content { min-height: 0; min-width: 0; overflow-x: hidden; }
+  .sidebar-nav { min-height: 0; }
+  .table-wrap { max-height: max(240px, calc(100vh - 260px)); }
+  .modal { max-height: 100%; overflow-y: auto; }
+  .modal-overlay { padding: 24px; overflow-y: auto; }
+  /* Causa raiz real do bug: sem isso, o flexbox deixava os .card-panel
+     encolherem abaixo do tamanho do conteúdo (por terem overflow:hidden),
+     cortando campos do formulário em vez de deixar a página rolar. */
+  .card-panel { flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard.html" class="sidebar-logo" title="Início">
+      <div class="logo-icon"><img src="/img/logo.png" alt="Painel Netsimon"></div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="/dashboard.html" class="nav-item" data-page="dashboard">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-home.png" alt="Início"></span><span>Início</span>
+      </a>
+      <a href="/usuarios.html" class="nav-item" data-page="usuarios">
+        <span class="nav-icon">👤</span><span>Usuários</span>
+      </a>
+      <a href="/todos-usuarios.html" class="nav-item" data-page="todos-usuarios">
+        <span class="nav-icon">👥</span><span>Todos os Usuários</span>
+      </a>
+      <a href="/revendedores.html" class="nav-item reseller-manage-only" data-page="revendedores">
+        <span class="nav-icon">🏪</span><span>Revendedores</span>
+      </a>
+      <a href="/dispositivos.html" class="nav-item" data-page="dispositivos">
+        <span class="nav-icon">📵</span><span>Dispositivos</span>
+      </a>
+      <a href="/xray.html" class="nav-item admin-only" data-page="xray">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-xray.png" alt="Xray"></span><span>Xray</span>
+      </a>
+      <a href="/servidores.html" class="nav-item admin-only" data-page="servidores">
+        <span class="nav-icon">🖧</span><span>Servidores</span>
+      </a>
+      <a href="/diagnostico.html" class="nav-item" data-page="diagnostico">
+        <span class="nav-icon">🛠️</span><span>Manutenção</span>
+      </a>
+      <a href="/whatsapp.html" class="nav-item" data-page="whatsapp">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-whatsapp.png" alt="Bot WhatsApp"></span><span>Bot WhatsApp</span>
+      </a>
+      <a href="/campanhas.html" class="nav-item" data-page="campanhas">
+        <span class="nav-icon">📣</span><span>Campanhas</span>
+      </a>
+      <a href="/app.html" class="nav-item" data-page="app">
+        <span class="nav-icon">📱</span><span>Aplicativo</span>
+      </a>
+      <a href="/backup.html" class="nav-item admin-only" data-page="backup">
+        <span class="nav-icon">💾</span><span>Backup</span>
+      </a>
+      <a href="/bot.html" class="nav-item admin-only" data-page="bot">
+        <span class="nav-icon">🤖</span><span>Bot Telegram</span>
+      </a>
+      <a href="/logs.html" class="nav-item admin-only" data-page="logs">
+        <span class="nav-icon">📋</span><span>Logs</span>
+      </a>
+      <a href="#" class="nav-item admin-only" data-page="terminal" onclick="openTerminal(); return false;">
+        <span class="nav-icon">🖥️</span><span>Terminal</span>
+      </a>
+      <a href="/ia.html" class="nav-item" data-page="ia">
+        <span class="nav-icon">✨</span><span>IA</span>
+      </a>
+      <!-- Item 4: menu novo, exclusivo do admin (não é recurso por revendedor). -->
+      <a href="/material.html" class="nav-item admin-only" data-page="material">
+        <span class="nav-icon">🗃️</span><span>Material</span>
+      </a>
+      <a href="/configuracoes.html" class="nav-item admin-only" data-page="config">
+        <span class="nav-icon">⚙️</span><span>Configurações</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">👑</span>
+        <div>
+          <div class="user-name" id="sidebar-username">–</div>
+          <div class="user-role" id="sidebar-role">–</div>
+        </div>
+      </div>
+      <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema" onclick="toggleTheme()">☀️</button>
+      <button class="btn-logout" id="btn-logout" title="Sair">⏻</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="burger" id="burger">☰</button>
+        <h1 class="page-title">Campanhas de Reengajamento</h1>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="card-panel" data-panel-id="mensagem-aleatoria">
+        <div class="card-panel-header"><span>🎲 Mensagem Aleatória Programável</span></div>
+        <div class="form-grid" style="padding:16px 18px">
+          <div class="text-sm text-muted" style="margin:0">
+            Envio avulso, fora do fluxo de campanha em lote: digite a mensagem e o número do contato na mão
+            (ou use um modelo salvo abaixo), anexe uma mídia se quiser, e agende a data/hora exata do disparo —
+            ou deixe o agendamento em branco pra entrar na fila de envio imediato.
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label>Número do contato</label>
+              <input type="text" id="rnd-phone" placeholder="ex: 5511999999999">
+            </div>
+            <div class="form-field">
+              <label>Agendar envio pra (opcional — deixe em branco pra enviar assim que possível)</label>
+              <input type="datetime-local" id="rnd-schedule-at">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label>Mensagem</label>
+            <textarea id="rnd-message" rows="4" class="ta-mono" placeholder="Digite a mensagem que será enviada..."></textarea>
+            <div style="margin-top:6px">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="openTemplatePicker('aleatoria')">🗂️ Adicionar modelo</button>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label>Anexo (opcional)</label>
+            <select id="rnd-media-type" onchange="toggleRndMediaPicker()">
+              <option value="">Sem anexo</option>
+              <option value="image">🖼️ Imagem</option>
+              <option value="video">🎬 Vídeo</option>
+              <option value="document">📄 Arquivo (ex: APK)</option>
+            </select>
+            <div id="rnd-media-picker" style="display:none; align-items:center; gap:8px; margin-top:8px">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('rnd-media-file').click()">📎 Escolher arquivo</button>
+              <span id="rnd-media-filename" class="text-sm text-muted">Nenhum arquivo selecionado</span>
+              <input type="file" id="rnd-media-file" style="display:none" onchange="_updateRndMediaFilename()">
+            </div>
+          </div>
+
+          <div>
+            <button class="btn btn-ghost btn-sm" onclick="clearRandomMessageForm()">🧹 Limpar</button>
+            <button class="btn btn-primary btn-sm" onclick="createRandomMessage()">🚀 Salvar mensagem</button>
+          </div>
+
+          <div class="table-wrap" style="max-height:260px; overflow:auto; margin-top:6px">
+            <table>
+              <thead><tr><th>Telefone</th><th>Mensagem</th><th>Agendada pra</th><th>Status</th><th></th></tr></thead>
+              <tbody id="rnd-msgs-tbody"><tr><td colspan="5" class="text-muted text-sm">Carregando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel" data-panel-id="nova-campanha">
+        <div class="card-panel-header"><span>🆕 Nova Campanha Manual</span></div>
+        <div class="form-grid" style="padding:16px 18px">
+          <div class="text-sm text-muted" style="margin:0">
+            Escolha exatamente o período da última interação (ex: mês 05 / ano 2022), opcionalmente um filtro pelo
+            nome salvo do contato, e — se quiser — filtros de <b>exclusão</b> (ex: "todos os contatos, menos
+            quem falou com a gente em 2023") mais ajuste fino contato a contato na pré-visualização abaixo. Se
+            nenhum filtro for aplicado, a campanha vai pra todos os contatos que o painel conseguir localizar.
+            Pré-visualize antes de disparar — assim você sabe exatamente quantos e quais contatos vão receber.
+          </div>
+
+          <div class="form-field">
+            <label>Nome da campanha</label>
+            <input type="text" id="camp-name" placeholder="ex: Reengajamento — Maio 2022">
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label>Mês da última interação (opcional)</label>
+              <select id="camp-month">
+                <option value="">Qualquer mês</option>
+                <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+                <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
+                <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+                <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Ano da última interação (opcional)</label>
+              <input type="number" id="camp-year" placeholder="ex: 2022" min="2015" max="2100">
+            </div>
+            <div class="form-field">
+              <label>Nome do contato contém (opcional)</label>
+              <input type="text" id="camp-name-filter" placeholder="ex: rev">
+            </div>
+          </div>
+
+          <div class="form-field" style="border:1px solid var(--border); border-radius:8px; padding:12px 14px; background:var(--surface2)">
+            <label style="margin-bottom:2px">🚫 Filtros de exclusão (opcional)</label>
+            <div class="text-sm text-muted" style="margin:0 0 10px">
+              Tira do público quem bater com qualquer um destes — ex: pra mandar "todos os contatos, menos quem
+              falou com a gente em 2023", deixe os filtros de inclusão acima em branco e preencha só "Ano a
+              excluir" com 2023 aqui.
+            </div>
+            <div class="form-row" style="margin:0">
+              <div class="form-field">
+                <label>Mês(es) a excluir</label>
+                <div id="camp-exclude-months" style="display:flex; flex-wrap:wrap; gap:5px 12px; padding:8px 0 2px">
+                  <label style="display:inline-flex; align-items:center; gap:4px; width:auto; font-weight:normal; font-size:13px; cursor:pointer"><input type="checkbox" class="camp-exclude-month-cb" value="1" style="width:auto; margin:0">Jan</label>
+                  <label style="display:inline-flex; align-items:center; gap:4px; width:auto; font-weight:normal; font-size:13px; cursor:pointer"><input type="checkbox" class="camp-exclude-month-cb" value="2" style="width:auto; margin:0">Fev</label>
+                  <label style="display:inline-flex; align-items:center; gap:4px; width:auto; font-weight:normal; font-size:13px; cursor:pointer"><input type="checkbox" class="camp-exclude-month-cb" value="3" style="width:auto; margin:0">Mar</label>
+                  <label style="display:inline-flex; align-items:center; gap:4px; width:auto; font-weight:normal; font-size:13px; cursor:pointer"><input type="checkbox" class="camp-exclude-month-cb" value="4" style="width:auto; margin:0">Abr</label>
+                  <label style="display:inline-flex; align-items:center; gap:4px; width:auto; font-weight:normal; font-size:13px; cursor:pointer"><input type="checkbox" class="camp-exclude-month-cb" value="5" style="width:auto; margin:0">Mai</label>
+                  <label style="display:inline-flex; align-items:center; gap:4px; width:auto; font-weight:normal; font-size:13px; cursor:pointer"><input type="checkbox" class="camp-exclude-month-cb" value="6" style="width:auto; margin:0">Jun</label>
+                  <label style="display:inline-flex; align-items:center; gap:4px; width:auto; font-weight:normal; font-size:13px; cursor:pointer"><input type="checkbox" class="camp-exclude-month-cb" value="7" style="width:auto; margin:0">Jul</label>
+                  <label style="display:inline-flex; align-items:center; gap:4px; width:auto; font-weight:normal; font-size:13px; cursor:pointer"><input type="checkbox" class="camp-exclude-month-cb" value="8" style="width:auto; margin:0">Ago</label>
+                  <label style="display:inline-flex; align-items:center; gap:4px; width:auto; font-weight:normal; font-size:13px; cursor:pointer"><input type="checkbox" class="camp-exclude-month-cb" value="9" style="width:auto; margin:0">Set</label>
+                  <label style="display:inline-flex; align-items:center; gap:4px; width:auto; font-weight:normal; font-size:13px; cursor:pointer"><input type="checkbox" class="camp-exclude-month-cb" value="10" style="width:auto; margin:0">Out</label>
+                  <label style="display:inline-flex; align-items:center; gap:4px; width:auto; font-weight:normal; font-size:13px; cursor:pointer"><input type="checkbox" class="camp-exclude-month-cb" value="11" style="width:auto; margin:0">Nov</label>
+                  <label style="display:inline-flex; align-items:center; gap:4px; width:auto; font-weight:normal; font-size:13px; cursor:pointer"><input type="checkbox" class="camp-exclude-month-cb" value="12" style="width:auto; margin:0">Dez</label>
+                </div>
+                <div class="text-sm text-muted" style="margin:2px 0 0">Marque um ou mais meses — ex: Mar + Jun junto com "Ano a excluir" = 2021 exclui março E junho de 2021.</div>
+              </div>
+              <div class="form-field">
+                <label>Ano a excluir</label>
+                <input type="number" id="camp-exclude-year" placeholder="ex: 2023" min="2015" max="2100">
+              </div>
+              <div class="form-field">
+                <label>Nome do contato NÃO contém</label>
+                <input type="text" id="camp-exclude-name-filter" placeholder="ex: teste">
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <button class="btn btn-ghost btn-sm" onclick="previewCampaign()">🔍 Pré-visualizar contatos</button>
+            <span id="preview-result" class="text-sm text-muted" style="margin-left:10px"></span>
+          </div>
+          <div id="preview-list" class="table-wrap" style="display:none; max-height:260px; overflow:auto;">
+            <table>
+              <thead><tr><th style="width:36px"></th><th>Telefone</th><th>Nome</th><th>Tags</th><th>Última interação</th></tr></thead>
+              <tbody id="preview-tbody"></tbody>
+            </table>
+          </div>
+          <div id="preview-manual-note" class="text-sm text-muted" style="display:none"></div>
+
+          <div class="form-field" style="border:1px solid var(--border); border-radius:8px; padding:12px 14px; background:var(--surface2)">
+            <label style="margin-bottom:2px">➕ Incluir contato específico na mão (opcional)</label>
+            <div class="text-sm text-muted" style="margin:0 0 8px">
+              Adiciona um contato à campanha mesmo que ele não bata com nenhum filtro de inclusão acima
+              (sempre entra, mesmo que bata com uma exclusão).
+            </div>
+            <input type="text" id="camp-manual-search" placeholder="buscar por telefone, nome ou tag..." oninput="_debounceManualContactSearch()" autocomplete="off">
+            <div id="camp-manual-search-results" class="text-sm" style="margin-top:6px"></div>
+            <div id="camp-manual-included-chips" style="margin-top:10px; display:flex; flex-wrap:wrap; gap:6px"></div>
+          </div>
+
+          <div class="form-field">
+            <label>Mensagem da campanha</label>
+            <textarea id="camp-message" rows="4" class="ta-mono" placeholder="Digite a mensagem que será enviada pra esse grupo de contatos..."></textarea>
+            <div style="margin-top:6px">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="openTemplatePicker('campanha')">🗂️ Adicionar modelo</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label>Anexo (opcional)</label>
+              <select id="camp-media-type" onchange="toggleCampMediaPicker()">
+                <option value="">Sem anexo</option>
+                <option value="image">🖼️ Imagem</option>
+                <option value="video">🎬 Vídeo</option>
+                <option value="document">📄 Arquivo (ex: APK)</option>
+              </select>
+              <div id="camp-media-picker" style="display:none; align-items:center; gap:8px; margin-top:8px">
+                <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('camp-media-file').click()">📎 Escolher arquivo</button>
+                <span id="camp-media-filename" class="text-sm text-muted">Nenhum arquivo selecionado</span>
+                <input type="file" id="camp-media-file" style="display:none" onchange="_updateCampMediaFilename()">
+              </div>
+            </div>
+            <div class="form-field">
+              <label>Pausa entre cada envio (segundos)</label>
+              <input type="number" id="camp-delay" min="5" value="30">
+            </div>
+            <div class="form-field">
+              <label>Limite de envios por dia (0 = sem limite)</label>
+              <input type="number" id="camp-max-per-day" min="0" value="0">
+            </div>
+          </div>
+
+          <div class="form-field" style="border:1px solid var(--border); border-radius:8px; padding:12px 14px; background:var(--surface2)">
+            <label style="margin-bottom:2px">⏰ Janela de envio (reengajamento seguro)</label>
+            <div class="text-sm text-muted" style="margin:0 0 8px">
+              Ajuda a não levar o número a ser marcado como spam pelo WhatsApp e a soar mais natural
+              (como se fosse uma pessoa mandando, não um disparo em massa).
+            </div>
+            <label style="font-weight:400; display:block; margin-bottom:6px">
+              <input type="checkbox" id="camp-hourly-interval" style="width:auto; margin-right:6px">
+              Espaçar envios em pelo menos 1h entre cada mensagem
+            </label>
+            <label style="font-weight:400; display:block">
+              <input type="checkbox" id="camp-business-window" style="width:auto; margin-right:6px">
+              Enviar somente em dias úteis (seg–sex), das 08:00 às 22:00
+            </label>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label>Agendar início pra (opcional — deixe em branco pra decidir na hora)</label>
+              <input type="datetime-local" id="camp-schedule-at">
+            </div>
+            <div class="form-field">
+              <label>Testar envio num número antes de disparar (opcional)</label>
+              <div style="display:flex; gap:6px">
+                <input type="text" id="camp-test-phone" placeholder="ex: 5511999999999">
+                <button class="btn btn-ghost btn-sm" style="white-space:nowrap" onclick="testSendCampaign()">🧪 Enviar teste</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <button class="btn btn-ghost btn-sm" onclick="clearCampaignForm()">🧹 Limpar</button>
+            <button class="btn btn-primary btn-sm" onclick="createCampaign('rascunho')">💾 Salvar como rascunho</button>
+            <button class="btn btn-primary btn-sm" onclick="createCampaign('agora')">🚀 Salvar e Iniciar Envio</button>
+            <button class="btn btn-primary btn-sm" onclick="createCampaign('agendar')">🗓️ Salvar e Agendar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel" data-panel-id="modelos-mensagens">
+        <div class="card-panel-header"><span>🗂️ Modelos de Mensagens</span></div>
+        <div class="form-grid" style="padding:16px 18px">
+          <div class="text-sm text-muted" style="margin:0">
+            Guarde mensagens prontas (texto + mídia opcional) pra reaproveitar com um clique em qualquer tela de
+            envio — Nova Campanha Manual, Mensagem Aleatória Programável, etc. — através do botão
+            "🗂️ Adicionar modelo" em cada uma delas, sem precisar redigitar/reanexar tudo de novo.
+          </div>
+
+          <div class="form-field">
+            <label>Nome do modelo</label>
+            <input type="text" id="tpl-name" placeholder="ex: Promoção de renovação">
+          </div>
+
+          <div class="form-field">
+            <label>Mensagem</label>
+            <textarea id="tpl-message" rows="3" class="ta-mono" placeholder="Digite o texto do modelo..."></textarea>
+          </div>
+
+          <div class="form-field">
+            <label>Anexo (opcional)</label>
+            <select id="tpl-media-type" onchange="toggleTemplateMediaPicker()">
+              <option value="">Sem anexo</option>
+              <option value="image">🖼️ Imagem</option>
+              <option value="video">🎬 Vídeo</option>
+              <option value="document">📄 Arquivo (ex: APK)</option>
+            </select>
+            <div id="tpl-media-picker" style="display:none; align-items:center; gap:8px; margin-top:8px">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('tpl-media-file').click()">📎 Escolher arquivo</button>
+              <span id="tpl-media-filename" class="text-sm text-muted">Nenhum arquivo selecionado</span>
+              <input type="file" id="tpl-media-file" style="display:none" onchange="_updateTplMediaFilename()">
+            </div>
+          </div>
+
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="createTemplate()">💾 Salvar modelo</button>
+          </div>
+
+          <div class="table-wrap" style="max-height:260px; overflow:auto; margin-top:6px">
+            <table>
+              <thead><tr><th>Nome</th><th>Mensagem</th><th></th></tr></thead>
+              <tbody id="templates-tbody"><tr><td colspan="3" class="text-muted text-sm">Carregando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel" data-panel-id="disparo-automatico">
+        <div class="card-panel-header"><span>🔁 Disparo Automático (por dias de inatividade)</span></div>
+        <div class="form-grid" style="padding:16px 18px">
+          <div class="text-sm text-muted" style="margin:0">
+            Esse é o modo "no piloto automático": o bot verifica sozinho, a cada poucas horas, quem passou de X dias
+            sem falar e manda a mensagem configurada. Pra ter controle total sobre EXATAMENTE quais contatos recebem
+            (por exemplo, só quem falou em 05/2022), use uma <strong>campanha manual</strong> mais abaixo em vez
+            deste modo automático.
+          </div>
+          <div class="form-field">
+            <label><input type="checkbox" id="auto-enabled" style="width:auto; margin-right:6px"> Ativar disparo automático por dias de inatividade</label>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label>Considerar inativo após (dias)</label>
+              <input type="number" id="auto-inactive-days" min="1" value="60">
+            </div>
+            <div class="form-field">
+              <label>Intervalo mínimo entre reenvios (dias)</label>
+              <input type="number" id="auto-resend-days" min="1" value="30">
+            </div>
+            <div class="form-field">
+              <label>Máx. tentativas (0 = sem limite)</label>
+              <input type="number" id="auto-max-attempts" min="0" value="3">
+            </div>
+            <div class="form-field">
+              <label>Pausa entre envios (minutos)</label>
+              <input type="number" id="auto-delay-min" min="1" value="1">
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Mensagem automática (use {login}, {dias})</label>
+            <textarea id="auto-msg" rows="3" class="ta-mono"></textarea>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="saveAutoConfig()">💾 Salvar disparo automático</button>
+        </div>
+      </div>
+
+      <div class="card-panel" data-panel-id="importar-contatos">
+        <div class="card-panel-header"><span>📥 Importar contatos (CSV/vCard)</span></div>
+        <div class="form-grid" style="padding:16px 18px">
+          <div class="text-sm text-muted" style="margin:0">
+            O WhatsApp não compartilha o nome que você salvou na sua agenda com o painel — só o nome que a própria
+            pessoa definiu pra ela mesma. Pra trazer os seus rótulos de volta (ex: "Alexander Revendedor"), exporte
+            os contatos do seu celular em <b>.vcf (vCard)</b> ou <b>.csv</b> e importe aqui. Só atualiza contatos que
+            já têm histórico no painel (números sem nenhuma interação ainda são ignorados, pois não têm "última
+            interação" pra usar em campanhas).
+          </div>
+
+          <div class="form-field">
+            <label>Arquivo (.vcf ou .csv)</label>
+            <div style="display:flex; align-items:center; gap:8px">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('import-file').click()">📎 Escolher arquivo</button>
+              <span id="import-filename" class="text-sm text-muted">Nenhum arquivo selecionado</span>
+              <input type="file" id="import-file" accept=".vcf,.csv,.txt,.tsv" style="display:none" onchange="document.getElementById('import-filename').textContent = this.files[0]?.name || 'Nenhum arquivo selecionado'">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label><input type="checkbox" id="import-update-names" checked style="width:auto; margin-right:6px">Atualizar o nome salvo no painel com o nome importado</label>
+          </div>
+
+          <div class="form-field">
+            <label>Regras de tag automática (opcional — uma por linha, formato "trecho=tag")</label>
+            <textarea id="import-tag-rules" rows="3" class="ta-mono" placeholder="rev=revendedor&#10;cliente vip=vip"></textarea>
+            <div class="text-sm text-muted" style="margin-top:4px">
+              Contatos cujo nome importado contém o trecho (sem diferenciar maiúsculas/minúsculas) recebem essa tag
+              automaticamente — ex: "rev=revendedor" marca "Alexander Revendedor", "Zeka Rev", etc.
+            </div>
+          </div>
+
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="importContacts()">📥 Importar</button>
+            <span id="import-result" class="text-sm text-muted" style="margin-left:10px"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel" data-panel-id="importar-historico">
+        <div class="card-panel-header"><span>📅 Importar histórico (contatos sem interação registrada)</span></div>
+        <div class="form-grid" style="padding:16px 18px">
+          <div class="text-sm text-muted" style="margin:0">
+            Use isso quando o contato está na sua agenda e você sabe que já conversou, mas ele não aparece
+            em nenhum lugar do painel — geralmente porque o WhatsApp nunca revelou o telefone real desse chat
+            pro sistema (chat endereçado por "LID"). Precisa de dois arquivos: a mesma <b>agenda (.vcf/.csv)</b>
+            de baixo (nome + telefone) e um <b>histórico (.json)</b> com nome + data da última conversa,
+            capturado lendo a tela da lista de conversas do WhatsApp. Diferente da importação normal, esta
+            <b>cria</b> o contato no painel mesmo que ele nunca tenha tido histórico antes.
+          </div>
+
+          <div class="form-field">
+            <label>Agenda (.vcf ou .csv)</label>
+            <div style="display:flex; align-items:center; gap:8px">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('history-contacts-file').click()">📎 Escolher arquivo</button>
+              <span id="history-contacts-filename" class="text-sm text-muted">Nenhum arquivo selecionado</span>
+              <input type="file" id="history-contacts-file" accept=".vcf,.csv,.txt,.tsv" style="display:none" onchange="document.getElementById('history-contacts-filename').textContent = this.files[0]?.name || 'Nenhum arquivo selecionado'">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label>Histórico capturado (.json)</label>
+            <div style="display:flex; align-items:center; gap:8px">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('history-json-file').click()">📎 Escolher arquivo</button>
+              <span id="history-json-filename" class="text-sm text-muted">Nenhum arquivo selecionado</span>
+              <input type="file" id="history-json-file" accept=".json" style="display:none" onchange="document.getElementById('history-json-filename').textContent = this.files[0]?.name || 'Nenhum arquivo selecionado'">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label><input type="checkbox" id="history-update-names" checked style="width:auto; margin-right:6px">Atualizar o nome salvo no painel com o nome da agenda</label>
+          </div>
+
+          <div class="form-field">
+            <label>Regras de tag automática (opcional — uma por linha, formato "trecho=tag")</label>
+            <textarea id="history-tag-rules" rows="2" class="ta-mono" placeholder="rev=revendedor"></textarea>
+          </div>
+
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="importHistoryByName()">📅 Importar histórico</button>
+            <span id="history-import-result" class="text-sm text-muted" style="margin-left:10px"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel" data-panel-id="limpar-historico" style="border-left:3px solid var(--danger, #e74c3c)">
+        <div class="card-panel-header"><span>🗑️ Limpar Histórico de Contatos</span></div>
+        <div class="form-grid" style="padding:16px 18px">
+          <div class="text-sm text-muted">
+            Apaga TODA a memória de contatos que o bot guardou até agora (nome, tags, data da última interação).
+            Use isso se o histórico acumulou números quebrados/duplicados (ex: com o "55" do país repetido —
+            já corrigido no painel, não deve mais acontecer em novas importações) e você quer recomeçar do zero
+            com uma agenda já corrigida, sem o painel insistir em misturar com o que estava salvo antes.
+            Depois de limpar, importe seu CSV/vCard corrigido em "Importar contatos" acima — a memória volta a
+            se preencher normalmente conforme as pessoas mandam mensagem.
+            <br><b>Isso não apaga usuários nem servidores — só a memória de contatos do bot.</b>
+          </div>
+          <div>
+            <button class="btn btn-danger btn-sm" onclick="clearContactHistory()">🗑️ Limpar histórico de contatos</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel" data-panel-id="gerenciar-tags">
+        <div class="card-panel-header">
+          <span>🏷️ Gerenciar contatos e tags</span>
+          <button class="btn btn-ghost btn-sm" onclick="loadTagContacts()">🔄 Atualizar</button>
+        </div>
+        <div class="form-grid" style="padding:16px 18px">
+          <div class="form-field">
+            <label>Buscar (telefone, nome ou tag)</label>
+            <input type="text" id="tag-search" placeholder="ex: rev" oninput="_debounceTagSearch()">
+          </div>
+          <div class="table-wrap" style="max-height:320px; overflow:auto;">
+            <table>
+              <thead><tr><th>Telefone</th><th>Nome</th><th>Última interação</th><th>Tags</th><th></th></tr></thead>
+              <tbody id="tag-contacts-tbody"><tr><td colspan="5" class="text-muted text-sm">Carregando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel" data-panel-id="lista-sucessos">
+        <div class="card-panel-header">
+          <span>✅ Lista de sucessos (contatos confirmados)</span>
+          <button class="btn btn-ghost btn-sm" onclick="loadSuccessList()">🔄 Atualizar</button>
+        </div>
+        <div class="form-grid" style="padding:16px 18px">
+          <div class="text-sm text-muted" style="margin:0">
+            Lista separada e cumulativa — nunca é resetada por campanha. Toda vez que uma mensagem de campanha
+            é aceita/entregue/visualizada por um contato, ele entra aqui pra sempre (some de campanha em campanha
+            vira uma lista única). Use isso, com o tempo, pra saber quem da sua base ainda tem WhatsApp de
+            verdade e limpar o resto.
+          </div>
+          <div class="form-field">
+            <label>Buscar (telefone ou nome)</label>
+            <input type="text" id="success-search" placeholder="ex: Alexander" oninput="_debounceSuccessSearch()">
+          </div>
+          <div id="success-count" class="text-sm text-muted" style="margin:0"></div>
+          <div class="table-wrap" style="max-height:320px; overflow:auto;">
+            <table>
+              <thead><tr><th>Telefone</th><th>Nome</th><th>Melhor status</th><th>Campanhas</th><th>Última confirmação</th></tr></thead>
+              <tbody id="success-list-tbody"><tr><td colspan="5" class="text-muted text-sm">Carregando...</td></tr></tbody>
+            </table>
+          </div>
+          <div>
+            <button class="btn btn-ghost btn-sm" onclick="exportSuccessListCSV()">⬇️ Baixar CSV</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel" data-panel-id="lista-campanhas">
+        <div class="card-panel-header">
+          <span>📋 Campanhas</span>
+          <button class="btn btn-ghost btn-sm" onclick="loadCampaigns()">🔄 Atualizar</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th><th>Status</th><th>Filtro</th><th>Total</th>
+                <th>Enviados</th><th>Entregues</th><th>Visualizados</th><th>Falhas</th><th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="campaigns-tbody">
+              <tr><td colspan="9" style="text-align:center; padding:32px; color:var(--muted);">Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal-report">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-header">
+      <span class="modal-title" id="report-title">📊 Relatório da Campanha</span>
+      <button class="modal-close" onclick="closeModal('modal-report')">×</button>
+    </div>
+    <div id="report-summary" class="text-sm text-muted" style="padding:0 4px 12px"></div>
+    <div id="report-ia-response" class="text-sm" style="display:none; background:var(--bg-alt,#1a1a1a); border:1px solid var(--border); border-radius:8px; padding:12px 14px; margin:0 4px 12px; white-space:pre-wrap;"></div>
+    <div class="table-wrap" style="max-height:420px; overflow:auto;">
+      <table>
+        <thead>
+          <tr><th>Contato</th><th>Nome</th><th>Enviado</th><th>Entregue</th><th>Visualizado</th><th>Horário do envio</th><th></th></tr>
+        </thead>
+        <tbody id="report-tbody"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="report-ia-btn" onclick="askCampaignAI()">🤖 Perguntar à IA</button>
+      <button class="btn btn-ghost" id="report-export-btn" onclick="exportCampaignCSV()">⬇️ Exportar CSV</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-report')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-campaign">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <span class="modal-title" id="edit-camp-title">✏️ Editar Campanha</span>
+      <button class="modal-close" onclick="closeModal('modal-edit-campaign')">×</button>
+    </div>
+    <div class="text-sm text-muted" style="padding:0 4px 12px" id="edit-camp-note">
+      O público-alvo já definido (quem entra na campanha) não muda por aqui — dá pra ajustar a mensagem, o anexo
+      e o ritmo de envio, inclusive com a campanha em andamento: quem já recebeu não é afetado, e as mudanças
+      valem a partir do próximo envio da fila.
+    </div>
+    <input type="hidden" id="edit-camp-id">
+    <div class="form-grid" style="padding:0 4px">
+      <div class="form-field">
+        <label>Nome da campanha</label>
+        <input type="text" id="edit-camp-name">
+      </div>
+      <div class="form-field">
+        <label>Mensagem da campanha</label>
+        <textarea id="edit-camp-message" rows="4" class="ta-mono"></textarea>
+      </div>
+      <div class="form-field">
+        <label>Anexo atual</label>
+        <div id="edit-camp-media-current" class="text-sm text-muted">Sem anexo</div>
+        <div style="display:flex; align-items:center; gap:8px; margin-top:6px">
+          <select id="edit-camp-media-type">
+            <option value="">Sem anexo novo</option>
+            <option value="image">🖼️ Imagem</option>
+            <option value="video">🎬 Vídeo</option>
+            <option value="document">📄 Arquivo (ex: APK)</option>
+          </select>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('edit-camp-media-file').click()">📎 Trocar anexo</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="removeEditCampMedia()">🗑️ Remover anexo</button>
+        </div>
+        <span id="edit-camp-media-filename" class="text-sm text-muted"></span>
+        <input type="file" id="edit-camp-media-file" style="display:none" onchange="_updateEditCampMediaFilename()">
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Pausa entre cada envio (segundos)</label>
+          <input type="number" id="edit-camp-delay" min="5">
+        </div>
+        <div class="form-field">
+          <label>Limite de envios por dia (0 = sem limite)</label>
+          <input type="number" id="edit-camp-max-per-day" min="0">
+        </div>
+      </div>
+      <div class="form-field">
+        <label style="font-weight:400; display:block; margin-bottom:6px">
+          <input type="checkbox" id="edit-camp-hourly-interval" style="width:auto; margin-right:6px">
+          Espaçar envios em pelo menos 1h entre cada mensagem
+        </label>
+        <label style="font-weight:400; display:block">
+          <input type="checkbox" id="edit-camp-business-window" style="width:auto; margin-right:6px">
+          Enviar somente em dias úteis (seg–sex), das 08:00 às 22:00
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="saveEditCampaign()">💾 Salvar alterações</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-edit-campaign')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-template-picker">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <span class="modal-title">🗂️ Adicionar modelo</span>
+      <button class="modal-close" onclick="closeModal('modal-template-picker')">×</button>
+    </div>
+    <div class="text-sm text-muted" style="padding:0 4px 12px">
+      Escolha um modelo salvo — o texto (e o anexo, se o modelo tiver um) é aplicado direto no formulário, sem
+      precisar reanexar o arquivo.
+    </div>
+    <div id="template-picker-list" style="padding:0 4px; max-height:360px; overflow:auto"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-template-picker')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/painel.js"></script>
+<script>
+let _campaignsCache = [];
+let _lastPreviewFilters = null;
+
+async function loadAutoConfig() {
+  const cfg = await api("/whatsapp/config");
+  if (!cfg) return;
+  document.getElementById("auto-enabled").checked = !!cfg.bot_reengage_enabled;
+  document.getElementById("auto-inactive-days").value = cfg.bot_reengage_inactive_days ?? 60;
+  document.getElementById("auto-resend-days").value = cfg.bot_reengage_resend_interval_days ?? 30;
+  document.getElementById("auto-max-attempts").value = cfg.bot_reengage_max_attempts ?? 3;
+  // Backend guarda em segundos; tela mostra em minutos (mínimo 1min).
+  document.getElementById("auto-delay-min").value = Math.max(1, Math.round((cfg.bot_reengage_send_delay_seconds ?? 60) / 60));
+  document.getElementById("auto-msg").value = cfg.bot_reengage_message || "";
+}
+
+async function saveAutoConfig() {
+  const r = await api("/whatsapp/config", "PUT", {
+    bot_reengage_enabled: document.getElementById("auto-enabled").checked,
+    bot_reengage_inactive_days: parseInt(document.getElementById("auto-inactive-days").value) || 60,
+    bot_reengage_resend_interval_days: parseInt(document.getElementById("auto-resend-days").value) || 30,
+    bot_reengage_max_attempts: parseInt(document.getElementById("auto-max-attempts").value) || 0,
+    bot_reengage_send_delay_seconds: Math.max(60, (parseInt(document.getElementById("auto-delay-min").value) || 1) * 60),
+    bot_reengage_message: document.getElementById("auto-msg").value
+  });
+  if (r) toast("Disparo automático configurado!");
+}
+
+function escapeHtml(s) {
+  return (s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// Estado do público manual — vive só na tela (não persiste entre
+// carregamentos de página), reiniciado toda vez que o form é limpo.
+let _campSelectedTemplateId = null;       // modelo aplicado via "🗂️ Adicionar modelo" (só o anexo importa aqui)
+let _manualExcluded = new Set();          // telefones desmarcados na tabela de pré-visualização
+let _manualIncluded = new Map();          // telefone -> {phone,name} incluídos na busca manual
+let _manualSearchTimer = null;
+
+function _campaignFilters() {
+  return {
+    month: document.getElementById("camp-month").value || null,
+    year: document.getElementById("camp-year").value || null,
+    name_contains: document.getElementById("camp-name-filter").value.trim(),
+    // Item: mês a excluir agora aceita mais de um (ex: excluir março E
+    // junho de 2021) — cada checkbox marcado vira um item na lista.
+    exclude_months: [...document.querySelectorAll(".camp-exclude-month-cb:checked")].map(cb => parseInt(cb.value)),
+    exclude_year: document.getElementById("camp-exclude-year").value || null,
+    exclude_name_contains: document.getElementById("camp-exclude-name-filter").value.trim(),
+  };
+}
+
+async function previewCampaign() {
+  // A pré-visualização sempre mostra o resultado "cru" dos filtros de
+  // inclusão/exclusão (sem excluded_phones/included_phones) — assim a
+  // tabela nunca "some" uma linha que você acabou de desmarcar, dá pra
+  // marcar/desmarcar à vontade sem perder a visão do conjunto filtrado.
+  // As marcações manuais (checkbox + inclusão por busca) só entram no
+  // envio de verdade, na hora de salvar a campanha.
+  const filters = _campaignFilters();
+  _lastPreviewFilters = filters;
+  const r = await api("/whatsapp/campaigns/preview", "POST", filters);
+  if (!r) return;
+  document.getElementById("preview-result").textContent = `${r.total} contato(s) encontrado(s) com esse filtro.`;
+  const tbody = document.getElementById("preview-tbody");
+  const list = document.getElementById("preview-list");
+  if (!r.total) { list.style.display = "none"; document.getElementById("preview-manual-note").style.display = "none"; return; }
+  list.style.display = "block";
+  tbody.innerHTML = r.contatos.map(c => `
+    <tr>
+      <td><input type="checkbox" ${_manualExcluded.has(c.phone) ? "" : "checked"} onchange="_toggleManualExcluded('${c.phone}', this.checked)" title="Incluir este contato na campanha"></td>
+      <td>${escapeHtml(c.phone)}</td><td>${escapeHtml(c.name) || "–"}</td>
+      <td>${(c.tags || []).map(escapeHtml).join(", ") || "–"}</td><td>${c.last_seen_txt}</td>
+    </tr>
+  `).join("");
+  _updateManualNote();
+}
+
+function _toggleManualExcluded(phone, included) {
+  if (included) _manualExcluded.delete(phone);
+  else _manualExcluded.add(phone);
+  _updateManualNote();
+}
+
+function _updateManualNote() {
+  const note = document.getElementById("preview-manual-note");
+  const parts = [];
+  if (_manualExcluded.size) parts.push(`${_manualExcluded.size} desmarcado(s) manualmente na tabela acima — não vão receber`);
+  if (_manualIncluded.size) parts.push(`${_manualIncluded.size} incluído(s) manualmente abaixo — vão receber mesmo fora do filtro`);
+  if (!parts.length) { note.style.display = "none"; return; }
+  note.style.display = "block";
+  note.textContent = "⚠️ " + parts.join(" · ") + ".";
+}
+
+// ── Incluir contato específico na mão ───────────────────────────────
+function _debounceManualContactSearch() {
+  clearTimeout(_manualSearchTimer);
+  _manualSearchTimer = setTimeout(_searchManualContact, 350);
+}
+
+async function _searchManualContact() {
+  const q = document.getElementById("camp-manual-search").value.trim();
+  const box = document.getElementById("camp-manual-search-results");
+  if (q.length < 2) { box.innerHTML = ""; return; }
+  const r = await api(`/whatsapp/contacts?q=${encodeURIComponent(q)}&limit=8`);
+  if (!r) { box.innerHTML = ""; return; }
+  const contatos = (r.contatos || []).filter(c => !_manualIncluded.has(c.phone));
+  if (!contatos.length) { box.innerHTML = `<span class="text-muted">Nenhum contato encontrado.</span>`; return; }
+  box.innerHTML = contatos.map(c => `
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 8px; border-bottom:1px solid var(--border);">
+      <span>${escapeHtml(c.phone)} — ${escapeHtml(c.name) || "sem nome"}</span>
+      <button type="button" class="btn btn-ghost btn-sm" onclick='_addManualContact(${JSON.stringify(c.phone)}, ${JSON.stringify(c.name || "")})'>+ Incluir</button>
+    </div>
+  `).join("");
+}
+
+function _addManualContact(phone, name) {
+  _manualIncluded.set(phone, { phone, name });
+  document.getElementById("camp-manual-search").value = "";
+  document.getElementById("camp-manual-search-results").innerHTML = "";
+  _renderManualIncludedChips();
+  _updateManualNote();
+}
+
+function _removeManualContact(phone) {
+  _manualIncluded.delete(phone);
+  _renderManualIncludedChips();
+  _updateManualNote();
+}
+
+function _renderManualIncludedChips() {
+  const wrap = document.getElementById("camp-manual-included-chips");
+  wrap.innerHTML = [..._manualIncluded.values()].map(c => `
+    <span class="badge-status" style="display:inline-flex; align-items:center; gap:6px; cursor:default;">
+      ${escapeHtml(c.name) || escapeHtml(c.phone)}
+      <a href="#" onclick="_removeManualContact('${c.phone}'); return false;" title="Remover" style="color:inherit">✕</a>
+    </span>
+  `).join("");
+}
+
+function clearCampaignForm() {
+  document.getElementById("camp-name").value = "";
+  document.getElementById("camp-month").value = "";
+  document.getElementById("camp-year").value = "";
+  document.getElementById("camp-name-filter").value = "";
+  document.querySelectorAll(".camp-exclude-month-cb").forEach(cb => cb.checked = false);
+  document.getElementById("camp-exclude-year").value = "";
+  document.getElementById("camp-exclude-name-filter").value = "";
+  document.getElementById("camp-manual-search").value = "";
+  document.getElementById("camp-manual-search-results").innerHTML = "";
+  _manualExcluded = new Set();
+  _manualIncluded = new Map();
+  _renderManualIncludedChips();
+  document.getElementById("preview-manual-note").style.display = "none";
+  document.getElementById("camp-message").value = "";
+  document.getElementById("camp-media-type").value = "";
+  document.getElementById("camp-media-picker").style.display = "none";
+  document.getElementById("camp-media-file").value = "";
+  document.getElementById("camp-media-filename").textContent = "Nenhum arquivo selecionado";
+  document.getElementById("camp-delay").value = 30;
+  document.getElementById("camp-max-per-day").value = 0;
+  document.getElementById("camp-hourly-interval").checked = false;
+  document.getElementById("camp-business-window").checked = false;
+  document.getElementById("camp-schedule-at").value = "";
+  document.getElementById("camp-test-phone").value = "";
+  document.getElementById("preview-result").textContent = "";
+  document.getElementById("preview-list").style.display = "none";
+  _campSelectedTemplateId = null;
+}
+
+// Item: mostra/esconde o seletor de arquivo (botão + nome do anexo)
+// conforme o tipo escolhido, e ajusta o "accept" pra facilitar achar o
+// arquivo certo no seletor do sistema operacional.
+function toggleCampMediaPicker() {
+  const type = document.getElementById("camp-media-type").value;
+  const picker = document.getElementById("camp-media-picker");
+  const fileInput = document.getElementById("camp-media-file");
+  if (!type) {
+    picker.style.display = "none";
+    fileInput.value = "";
+    document.getElementById("camp-media-filename").textContent = "Nenhum arquivo selecionado";
+    return;
+  }
+  picker.style.display = "flex";
+  fileInput.accept = type === "image" ? "image/*" : type === "video" ? "video/*" : "";
+}
+
+function _updateCampMediaFilename() {
+  const file = document.getElementById("camp-media-file").files[0];
+  document.getElementById("camp-media-filename").textContent = file ? file.name : "Nenhum arquivo selecionado";
+  if (file) _campSelectedTemplateId = null; // anexo escolhido na mão substitui o do modelo
+}
+
+async function testSendCampaign() {
+  const phone = document.getElementById("camp-test-phone").value.trim();
+  const message = document.getElementById("camp-message").value.trim();
+  const mediaType = document.getElementById("camp-media-type").value;
+  const mediaFile = document.getElementById("camp-media-file").files[0];
+
+  if (!phone) { toast("Informe o telefone pra receber o teste", true); return; }
+  if (!message && !mediaType) { toast("Escreva a mensagem (ou anexe uma mídia) antes de testar", true); return; }
+
+  const fd = new FormData();
+  fd.append("phone", phone);
+  fd.append("message", message);
+  if (mediaType) fd.append("mediaType", mediaType);
+  if (mediaFile) fd.append("file", mediaFile);
+
+  try {
+    const r = await fetch("/api/whatsapp/campaigns/test-send", {
+      method: "POST", headers: { "X-Token": getToken() }, body: fd
+    });
+    const data = await r.json();
+    if (!r.ok) { toast(data.error || "Erro ao enviar teste", true); return; }
+    toast(`Teste enviado pra ${phone}!`);
+  } catch (e) {
+    toast("Erro ao enviar teste", true);
+  }
+}
+
+async function createCampaign(mode) {
+  const name = document.getElementById("camp-name").value.trim();
+  const message = document.getElementById("camp-message").value.trim();
+  const mediaType = document.getElementById("camp-media-type").value;
+  const mediaFile = document.getElementById("camp-media-file").files[0];
+  if (!name) { toast("Dê um nome pra campanha", true); return; }
+  if (!message && !mediaFile && !_campSelectedTemplateId) { toast("Escreva a mensagem da campanha ou anexe uma mídia (ex: só um banner)", true); return; }
+
+  let scheduledAt = "";
+  if (mode === "agendar") {
+    scheduledAt = document.getElementById("camp-schedule-at").value;
+    if (!scheduledAt) { toast("Escolha a data/hora do agendamento", true); return; }
+  }
+
+  const filters = _campaignFilters();
+  const payload = {
+    name, message,
+    has_media: Boolean(mediaFile) || Boolean(_campSelectedTemplateId),
+    // Item: anexo escolhido na mão tem prioridade; se não tiver, e um
+    // modelo com anexo foi aplicado via "🗂️ Adicionar modelo", o backend
+    // copia o anexo do modelo pra essa campanha (ver template_id).
+    template_id: (!mediaFile && _campSelectedTemplateId) ? _campSelectedTemplateId : null,
+    month: filters.month, year: filters.year, name_contains: filters.name_contains,
+    exclude_months: filters.exclude_months, exclude_year: filters.exclude_year,
+    exclude_name_contains: filters.exclude_name_contains,
+    excluded_phones: [..._manualExcluded],
+    included_phones: [..._manualIncluded.keys()],
+    delay_seconds: parseInt(document.getElementById("camp-delay").value) || 30,
+    max_per_day: parseInt(document.getElementById("camp-max-per-day").value) || 0,
+    hourly_interval: document.getElementById("camp-hourly-interval").checked,
+    business_window: document.getElementById("camp-business-window").checked,
+    scheduled_at: scheduledAt || null
+  };
+
+  const created = await api("/whatsapp/campaigns", "POST", payload);
+  if (!created) return;
+
+  // Item: anexo é enviado à parte (multipart), depois de criar a
+  // campanha — assim o texto/filtro fica salvo mesmo se o upload falhar.
+  if (mediaType && mediaFile) {
+    const fd = new FormData();
+    fd.append("mediaType", mediaType);
+    fd.append("file", mediaFile);
+    try {
+      const r = await fetch(`/api/whatsapp/campaigns/${created.id}/media`, {
+        method: "POST", headers: { "X-Token": getToken() }, body: fd
+      });
+      const data = await r.json();
+      if (!r.ok) toast(`Campanha criada, mas o anexo falhou: ${data.error || ""}`, true);
+    } catch (e) {
+      toast("Campanha criada, mas o anexo falhou ao enviar", true);
+    }
+  }
+
+  if (mode === "agora") {
+    const s = await api(`/whatsapp/campaigns/${created.id}/start`, "POST");
+    if (s) toast(`Campanha "${name}" iniciada! ${created.targets.length} contato(s) vão receber, enviando aos poucos, respeitando a pausa configurada.`);
+  } else if (mode === "agendar") {
+    toast(`Campanha "${name}" agendada pra ${new Date(scheduledAt).toLocaleString("pt-BR")} — ${created.targets.length} contato(s).`);
+  } else {
+    toast(`Campanha "${name}" salva como rascunho — ${created.targets.length} contato(s).`);
+  }
+
+  clearCampaignForm();
+  loadCampaigns();
+}
+
+function statusBadge(status) {
+  const labels = { rascunho: "Rascunho", agendada: "Agendada", enviando: "Enviando", pausada: "Pausada", concluida: "Concluída" };
+  return `<span class="badge-status badge-${status}">${labels[status] || status}</span>`;
+}
+
+function filterText(filters) {
+  const parts = [];
+  if (filters.month || filters.year) {
+    const meses = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+    parts.push(`${filters.month ? meses[filters.month] : "qualquer mês"}/${filters.year || "qualquer ano"}`);
+  } else {
+    parts.push("qualquer período");
+  }
+  if (filters.name_contains) parts.push(`nome contém "${filters.name_contains}"`);
+  const excludeMonths = filters.exclude_months && filters.exclude_months.length
+    ? filters.exclude_months
+    : (filters.exclude_month ? [filters.exclude_month] : []); // compat: campanhas salvas antes de aceitar vários meses
+  if (excludeMonths.length || filters.exclude_year) {
+    const meses = ["", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+    const m = excludeMonths.length ? excludeMonths.map(x => meses[x]).join("+") : "qualquer mês";
+    parts.push(`exceto ${m}${filters.exclude_year ? "/" + filters.exclude_year : ""}`);
+  }
+  if (filters.exclude_name_contains) parts.push(`nome não contém "${filters.exclude_name_contains}"`);
+  if ((filters.excluded_phones || []).length) parts.push(`${filters.excluded_phones.length} excluído(s) na mão`);
+  if ((filters.included_phones || []).length) parts.push(`${filters.included_phones.length} incluído(s) na mão`);
+  return parts.join(" · ");
+}
+
+async function loadCampaigns() {
+  const list = await api("/whatsapp/campaigns");
+  if (!list) return;
+  _campaignsCache = list;
+  const tbody = document.getElementById("campaigns-tbody");
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:32px; color:var(--muted);">Nenhuma campanha criada ainda.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(c => {
+    const s = c.summary;
+    const canStart  = c.status === "rascunho" || c.status === "pausada" || c.status === "agendada";
+    const canPause  = c.status === "enviando" || c.status === "agendada";
+    const pauseIcon = c.status === "agendada" ? "❌" : "⏸";
+    const pauseTitle = c.status === "agendada" ? "Cancelar agendamento" : "Pausar";
+    const canDelete = c.status !== "enviando";
+    const canEdit = c.status !== "concluida";
+    const scheduleTxt = c.status === "agendada" && c.scheduled_at
+      ? `<br><span class="text-sm text-muted">🗓️ ${new Date(c.scheduled_at * 1000).toLocaleString("pt-BR")}</span>` : "";
+    return `
+      <tr class="campaign-row">
+        <td>${c.name}</td>
+        <td>${statusBadge(c.status)}${scheduleTxt}</td>
+        <td class="text-sm text-muted">${filterText(c.filters)}</td>
+        <td>${s.total}</td>
+        <td>${s.enviado}</td>
+        <td>${s.entregue}</td>
+        <td>${s.visualizado}</td>
+        <td>${s.falhou}</td>
+        <td style="white-space:nowrap">
+          ${canStart ? `<button class="btn btn-primary btn-sm" onclick="startCampaign('${c.id}')" title="Iniciar agora">▶</button>` : ""}
+          ${canPause ? `<button class="btn btn-ghost btn-sm" onclick="pauseCampaign('${c.id}')" title="${pauseTitle}">${pauseIcon}</button>` : ""}
+          ${canEdit ? `<button class="btn btn-ghost btn-sm" onclick="openEditCampaign('${c.id}')" title="Editar campanha${c.status === "enviando" ? " (em andamento)" : ""}">✏️</button>` : ""}
+          <button class="btn btn-ghost btn-sm" onclick="openReport('${c.id}')" title="Relatório">📊</button>
+          <button class="btn btn-ghost btn-sm" onclick="duplicateCampaign('${c.id}')" title="Reativar no futuro">🔁</button>
+          ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteCampaign('${c.id}')" title="Excluir">🗑</button>` : ""}
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+// ── Editar campanha (inclusive em andamento) ────────────────────────
+let _editCampMediaRemoved = false;
+
+function openEditCampaign(id) {
+  const c = _campaignsCache.find(x => x.id === id);
+  if (!c) return;
+  _editCampMediaRemoved = false;
+  document.getElementById("edit-camp-id").value = c.id;
+  document.getElementById("edit-camp-title").textContent =
+    `✏️ Editar Campanha — ${c.name}${c.status === "enviando" ? " (em andamento)" : ""}`;
+  document.getElementById("edit-camp-name").value = c.name || "";
+  document.getElementById("edit-camp-message").value = c.message || "";
+  document.getElementById("edit-camp-delay").value = c.delay_seconds || 30;
+  document.getElementById("edit-camp-max-per-day").value = c.max_per_day || 0;
+  document.getElementById("edit-camp-hourly-interval").checked = Boolean(c.hourly_interval);
+  document.getElementById("edit-camp-business-window").checked = Boolean(c.business_window);
+  document.getElementById("edit-camp-media-current").textContent = c.media && c.media.filename
+    ? `📎 ${c.media.filename}` : "Sem anexo";
+  document.getElementById("edit-camp-media-type").value = "";
+  document.getElementById("edit-camp-media-file").value = "";
+  document.getElementById("edit-camp-media-filename").textContent = "";
+  openModal("modal-edit-campaign");
+}
+
+function _updateEditCampMediaFilename() {
+  const f = document.getElementById("edit-camp-media-file").files[0];
+  document.getElementById("edit-camp-media-filename").textContent = f ? f.name : "";
+  if (f) _editCampMediaRemoved = false;
+}
+
+async function removeEditCampMedia() {
+  const id = document.getElementById("edit-camp-id").value;
+  if (!id) return;
+  if (!confirm("Remover o anexo dessa campanha?")) return;
+  const r = await api(`/whatsapp/campaigns/${id}/media`, "DELETE");
+  if (r) {
+    _editCampMediaRemoved = true;
+    document.getElementById("edit-camp-media-current").textContent = "Sem anexo";
+    toast("Anexo removido.");
+  }
+}
+
+async function saveEditCampaign() {
+  const id = document.getElementById("edit-camp-id").value;
+  if (!id) return;
+  const name = document.getElementById("edit-camp-name").value.trim();
+  const message = document.getElementById("edit-camp-message").value.trim();
+  const mediaType = document.getElementById("edit-camp-media-type").value;
+  const mediaFile = document.getElementById("edit-camp-media-file").files[0];
+
+  const payload = {
+    name, message,
+    delay_seconds: parseInt(document.getElementById("edit-camp-delay").value) || 30,
+    max_per_day: parseInt(document.getElementById("edit-camp-max-per-day").value) || 0,
+    hourly_interval: document.getElementById("edit-camp-hourly-interval").checked,
+    business_window: document.getElementById("edit-camp-business-window").checked,
+  };
+
+  const updated = await api(`/whatsapp/campaigns/${id}`, "PATCH", payload);
+  if (!updated) return;
+
+  if (mediaType && mediaFile) {
+    const fd = new FormData();
+    fd.append("mediaType", mediaType);
+    fd.append("file", mediaFile);
+    try {
+      const r = await fetch(`/api/whatsapp/campaigns/${id}/media`, {
+        method: "POST", headers: { "X-Token": getToken() }, body: fd
+      });
+      const data = await r.json();
+      if (!r.ok) toast(`Campanha atualizada, mas o novo anexo falhou: ${data.error || ""}`, true);
+    } catch (e) {
+      toast("Campanha atualizada, mas o novo anexo falhou ao enviar", true);
+    }
+  }
+
+  toast(`Campanha "${name}" atualizada!`);
+  closeModal("modal-edit-campaign");
+  loadCampaigns();
+}
+
+async function startCampaign(id) {
+  const r = await api(`/whatsapp/campaigns/${id}/start`, "POST");
+  if (r) { toast("Envio iniciado/retomado!"); loadCampaigns(); }
+}
+
+async function pauseCampaign(id) {
+  const r = await api(`/whatsapp/campaigns/${id}/pause`, "POST");
+  if (r) { toast("Campanha pausada — clique em ▶ pra retomar de onde parou."); loadCampaigns(); }
+}
+
+async function duplicateCampaign(id) {
+  const r = await api(`/whatsapp/campaigns/${id}/duplicate`, "POST");
+  if (r) { toast(`Campanha "${r.name}" recriada como rascunho com os contatos de hoje.`); loadCampaigns(); }
+}
+
+async function deleteCampaign(id) {
+  if (!confirm("Excluir esta campanha? Essa ação não pode ser desfeita.")) return;
+  const r = await api(`/whatsapp/campaigns/${id}`, "DELETE");
+  if (r) { toast("Campanha excluída."); loadCampaigns(); }
+}
+
+async function openReport(id) {
+  const c = await api(`/whatsapp/campaigns/${id}`);
+  if (!c) return;
+  _currentReportCampaignId = id;
+  document.getElementById("report-title").textContent = `📊 Relatório — ${c.name}`;
+  const s = c.summary;
+  document.getElementById("report-summary").innerHTML =
+    `Total: <strong>${s.total}</strong> · Pendentes: <strong>${s.pendente}</strong> · ` +
+    `Enviados: <strong>${s.enviado}</strong> · Entregues: <strong>${s.entregue}</strong> · ` +
+    `Visualizados: <strong>${s.visualizado}</strong> · Falhas: <strong>${s.falhou}</strong>`;
+  const iaBox = document.getElementById("report-ia-response");
+  iaBox.style.display = "none";
+  iaBox.textContent = "";
+
+  const tbody = document.getElementById("report-tbody");
+  tbody.innerHTML = c.targets.map(t => {
+    const r = (c.results || {})[t.phone];
+    const status = r ? r.status : "pendente";
+    const entregue = ["entregue", "visualizado"].includes(status);
+    const visualizado = status === "visualizado";
+    const enviado = ["enviado", "entregue", "visualizado", "falhou"].includes(status);
+    const horario = r && r.sent_at ? new Date(r.sent_at * 1000).toLocaleString("pt-BR") : "–";
+    const enviadoTxt = status === "falhou" ? `<span style="color:#e87f7f">falhou</span>` : (enviado ? `<span class="check-ok">✓✓</span>` : `<span class="check-no">–</span>`);
+    const iaCell = status === "falhou"
+      ? `<button class="btn btn-ghost btn-sm" title="Perguntar à IA por que esse falhou" onclick="askCampaignAI('${t.phone}')">🤖</button>`
+      : "";
+    return `
+      <tr>
+        <td>${t.phone}</td>
+        <td>${t.name || "–"}</td>
+        <td>${enviadoTxt}</td>
+        <td>${entregue ? '<span class="check-ok">✓✓</span>' : '<span class="check-no">–</span>'}</td>
+        <td>${visualizado ? '<span class="check-ok">👁️ sim</span>' : '<span class="check-no">não</span>'}</td>
+        <td class="text-sm text-muted">${horario}</td>
+        <td>${iaCell}</td>
+      </tr>
+    `;
+  }).join("");
+  openModal("modal-report");
+}
+
+let _currentReportCampaignId = null;
+
+async function askCampaignAI(phone) {
+  if (!_currentReportCampaignId) return;
+  const iaBox = document.getElementById("report-ia-response");
+  iaBox.style.display = "block";
+  iaBox.textContent = phone ? `Perguntando à IA sobre ${phone}...` : "Perguntando à IA sobre o resultado desta campanha...";
+  const body = phone ? { phone } : {};
+  const r = await api(`/whatsapp/campaigns/${_currentReportCampaignId}/perguntar-ia`, "POST", body);
+  if (!r) { iaBox.style.display = "none"; return; }
+  iaBox.textContent = r.resposta;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Importação de contatos (CSV/vCard) e gestão manual de tags
+// ══════════════════════════════════════════════════════════════
+
+async function importContacts() {
+  const file = document.getElementById("import-file").files[0];
+  if (!file) { toast("Escolha um arquivo .vcf ou .csv primeiro", true); return; }
+
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("update_names", document.getElementById("import-update-names").checked ? "1" : "0");
+  fd.append("tag_rules", document.getElementById("import-tag-rules").value);
+
+  const resultEl = document.getElementById("import-result");
+  resultEl.textContent = "Importando...";
+  try {
+    const r = await fetch("/api/whatsapp/contacts/import", {
+      method: "POST", headers: { "X-Token": getToken() }, body: fd
+    });
+    const data = await r.json();
+    if (!r.ok) { toast(data.error || "Erro ao importar", true); resultEl.textContent = ""; return; }
+    resultEl.textContent =
+      `${data.arquivo_lidos} lido(s) no arquivo · ${data.casados_na_base} já tinham histórico no painel · ` +
+      `${data.nomes_atualizados} nome(s) atualizado(s) · ${data.tags_aplicadas} contato(s) com tag aplicada` +
+      (data.sem_historico_no_painel ? ` · ${data.sem_historico_no_painel} ignorado(s) (sem histórico no painel)` : "");
+    toast("Importação concluída!");
+    loadTagContacts();
+  } catch (e) {
+    toast("Erro ao importar arquivo", true);
+    resultEl.textContent = "";
+  }
+}
+
+async function importHistoryByName() {
+  const contactsFile = document.getElementById("history-contacts-file").files[0];
+  const historyFile = document.getElementById("history-json-file").files[0];
+  if (!contactsFile) { toast("Escolha o arquivo da agenda (.vcf ou .csv) primeiro", true); return; }
+  if (!historyFile) { toast("Escolha o arquivo de histórico (.json) primeiro", true); return; }
+
+  const fd = new FormData();
+  fd.append("contacts_file", contactsFile);
+  fd.append("history_file", historyFile);
+  fd.append("update_names", document.getElementById("history-update-names").checked ? "1" : "0");
+  fd.append("tag_rules", document.getElementById("history-tag-rules").value);
+
+  const resultEl = document.getElementById("history-import-result");
+  resultEl.textContent = "Importando...";
+  try {
+    const r = await fetch("/api/whatsapp/contacts/import-history-by-name", {
+      method: "POST", headers: { "X-Token": getToken() }, body: fd
+    });
+    const data = await r.json();
+    if (!r.ok) { toast(data.error || "Erro ao importar histórico", true); resultEl.textContent = ""; return; }
+    resultEl.textContent =
+      `${data.historico_lido} lido(s) no histórico · ${data.contatos_criados} contato(s) novo(s) criado(s) · ` +
+      `${data.contatos_atualizados} atualizado(s) · ${data.tags_aplicadas} com tag aplicada` +
+      (data.sem_telefone_na_agenda ? ` · ${data.sem_telefone_na_agenda} sem telefone correspondente na agenda` : "") +
+      (data.sem_data_valida ? ` · ${data.sem_data_valida} sem data válida` : "");
+    toast("Histórico importado!");
+    loadTagContacts();
+  } catch (e) {
+    toast("Erro ao importar histórico", true);
+    resultEl.textContent = "";
+  }
+}
+
+async function downloadFile(path, fallbackFilename) {
+  try {
+    const r = await fetch(API_BASE + path, { headers: { "X-Token": getToken() } });
+    if (!r.ok) { toast("Erro ao baixar arquivo", true); return; }
+    const blob = await r.blob();
+    let filename = fallbackFilename;
+    const disp = r.headers.get("Content-Disposition");
+    if (disp) {
+      const m = disp.match(/filename="?([^"]+)"?/);
+      if (m) filename = m[1];
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    toast("Erro ao baixar arquivo", true);
+  }
+}
+
+async function exportCampaignCSV() {
+  if (!_currentReportCampaignId) return;
+  downloadFile(`/whatsapp/campaigns/${_currentReportCampaignId}/export`, "campanha.csv");
+}
+
+let _successSearchTimer = null;
+function _debounceSuccessSearch() {
+  clearTimeout(_successSearchTimer);
+  _successSearchTimer = setTimeout(loadSuccessList, 350);
+}
+
+async function loadSuccessList() {
+  const q = document.getElementById("success-search").value.trim();
+  const r = await api(`/whatsapp/contacts/success-list?q=${encodeURIComponent(q)}`);
+  const tbody = document.getElementById("success-list-tbody");
+  const countEl = document.getElementById("success-count");
+  if (!r) { tbody.innerHTML = `<tr><td colspan="5" class="text-muted text-sm">Erro ao carregar.</td></tr>`; return; }
+  countEl.textContent = `${r.total} contato(s) confirmado(s) no total`;
+  if (!r.items.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-muted text-sm">Nenhum contato confirmado ainda — assim que uma campanha enviar com sucesso, eles aparecem aqui.</td></tr>`;
+    return;
+  }
+  const statusTxt = { enviado: "✓✓ Enviado", entregue: "✓✓ Entregue", visualizado: "👁️ Visualizado" };
+  tbody.innerHTML = r.items.map(c => `
+    <tr>
+      <td>${c.phone}</td>
+      <td>${c.name || "–"}</td>
+      <td>${statusTxt[c.best_status] || c.best_status}</td>
+      <td class="text-sm text-muted">${(c.campaigns || []).length}</td>
+      <td class="text-sm text-muted">${c.last_success_at ? new Date(c.last_success_at * 1000).toLocaleString("pt-BR") : "–"}</td>
+    </tr>
+  `).join("");
+}
+
+async function exportSuccessListCSV() {
+  downloadFile("/whatsapp/contacts/success-list/export", "contatos_confirmados_whatsapp.csv");
+}
+
+let _tagSearchTimer = null;
+function _debounceTagSearch() {
+  clearTimeout(_tagSearchTimer);
+  _tagSearchTimer = setTimeout(loadTagContacts, 350);
+}
+
+async function loadTagContacts() {
+  const q = document.getElementById("tag-search").value.trim();
+  const r = await api(`/whatsapp/contacts?q=${encodeURIComponent(q)}&limit=300`);
+  const tbody = document.getElementById("tag-contacts-tbody");
+  if (!r) { tbody.innerHTML = `<tr><td colspan="5" class="text-muted text-sm">Erro ao carregar.</td></tr>`; return; }
+  if (!r.contatos.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-muted text-sm">Nenhum contato encontrado.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = r.contatos.map(c => {
+    const phoneAttr = c.phone.replace(/"/g, "");
+    return `
+    <tr>
+      <td>${c.phone}</td>
+      <td>${c.name || "–"}</td>
+      <td class="text-sm text-muted">${c.last_seen_txt || "–"}</td>
+      <td><input type="text" value="${(c.tags || []).join(", ")}" id="tags-input-${phoneAttr}" placeholder="ex: revendedor, vip" style="width:100%"></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="saveContactTags('${phoneAttr}')">💾</button></td>
+    </tr>`;
+  }).join("");
+}
+
+async function saveContactTags(phone) {
+  const input = document.getElementById(`tags-input-${phone}`);
+  const tags = input.value.split(",").map(t => t.trim()).filter(Boolean);
+  const r = await api(`/whatsapp/contacts/${phone}/tags`, "POST", { tags });
+  if (r) {
+    toast("Tags salvas!");
+  }
+}
+
+// Item: limpar histórico de contatos — apaga a memória do bot pra
+// recomeçar do zero (ex: depois de importar uma agenda já corrigida,
+// sem misturar com contatos velhos/quebrados que já estavam salvos).
+async function clearContactHistory() {
+  if (!confirm("Isso vai apagar TODA a memória de contatos do bot (nomes, tags, última interação) — não dá pra desfazer. Depois disso, importe seu CSV/vCard corrigido pra repovoar. Tem certeza?")) return;
+  const r = await api("/whatsapp/contacts/clear", "POST");
+  if (!r) return;
+  toast(`Histórico limpo — ${r.removidos} contato(s) removido(s). Agora é só importar a agenda corrigida.`);
+  loadTagContacts();
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  MODELOS DE MENSAGENS — salvar/listar/apagar modelos e aplicá-los
+//  (via botão "🗂️ Adicionar modelo") nas telas de Nova Campanha
+//  Manual e Mensagem Aleatória Programável.
+// ══════════════════════════════════════════════════════════════════
+let _templatesCache = [];
+let _templatePickerContext = null; // "campanha" | "aleatoria"
+
+async function loadTemplates() {
+  const r = await api("/whatsapp/message-templates");
+  if (!r) return;
+  _templatesCache = r;
+  renderTemplateList();
+}
+
+function renderTemplateList() {
+  const tbody = document.getElementById("templates-tbody");
+  if (!tbody) return;
+  if (!_templatesCache.length) {
+    tbody.innerHTML = `<tr><td colspan="3" class="text-muted text-sm">Nenhum modelo salvo ainda.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = _templatesCache.map(t => `
+    <tr>
+      <td>${escapeHtml(t.name)}</td>
+      <td class="text-sm text-muted">${escapeHtml((t.message || "").slice(0, 80))}${(t.message || "").length > 80 ? "…" : ""}${t.media ? " 📎" : ""}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="deleteTemplate('${t.id}')">🗑️</button></td>
+    </tr>
+  `).join("");
+}
+
+function toggleTemplateMediaPicker() {
+  const type = document.getElementById("tpl-media-type").value;
+  const picker = document.getElementById("tpl-media-picker");
+  const fileInput = document.getElementById("tpl-media-file");
+  if (!type) {
+    picker.style.display = "none";
+    fileInput.value = "";
+    document.getElementById("tpl-media-filename").textContent = "Nenhum arquivo selecionado";
+    return;
+  }
+  picker.style.display = "flex";
+  fileInput.accept = type === "image" ? "image/*" : type === "video" ? "video/*" : "";
+}
+
+function _updateTplMediaFilename() {
+  const file = document.getElementById("tpl-media-file").files[0];
+  document.getElementById("tpl-media-filename").textContent = file ? file.name : "Nenhum arquivo selecionado";
+}
+
+async function createTemplate() {
+  const name = document.getElementById("tpl-name").value.trim();
+  const message = document.getElementById("tpl-message").value.trim();
+  const mediaType = document.getElementById("tpl-media-type").value;
+  const mediaFile = document.getElementById("tpl-media-file").files[0];
+  if (!name) { toast("Dê um nome pro modelo", true); return; }
+  if (!message && !mediaFile) { toast("Escreva a mensagem ou anexe uma mídia pro modelo", true); return; }
+
+  const created = await api("/whatsapp/message-templates", "POST", { name, message, has_media: Boolean(mediaFile) });
+  if (!created) return;
+
+  // Item: igual ao anexo de campanha — sobe à parte (multipart), depois
+  // de criar o modelo, pra não perder nome/texto se o upload falhar.
+  if (mediaType && mediaFile) {
+    const fd = new FormData();
+    fd.append("mediaType", mediaType);
+    fd.append("file", mediaFile);
+    try {
+      const r = await fetch(`/api/whatsapp/message-templates/${created.id}/media`, {
+        method: "POST", headers: { "X-Token": getToken() }, body: fd
+      });
+      const data = await r.json();
+      if (!r.ok) toast(`Modelo criado, mas o anexo falhou: ${data.error || ""}`, true);
+    } catch (e) {
+      toast("Modelo criado, mas o anexo falhou ao enviar", true);
+    }
+  }
+
+  toast(`Modelo "${name}" salvo!`);
+  document.getElementById("tpl-name").value = "";
+  document.getElementById("tpl-message").value = "";
+  document.getElementById("tpl-media-type").value = "";
+  document.getElementById("tpl-media-picker").style.display = "none";
+  document.getElementById("tpl-media-file").value = "";
+  document.getElementById("tpl-media-filename").textContent = "Nenhum arquivo selecionado";
+  loadTemplates();
+}
+
+async function deleteTemplate(id) {
+  if (!confirm("Apagar esse modelo? Não afeta campanhas/mensagens que já foram criadas usando ele.")) return;
+  const r = await api(`/whatsapp/message-templates/${id}`, "DELETE");
+  if (r) { toast("Modelo apagado."); loadTemplates(); }
+}
+
+function openTemplatePicker(context) {
+  _templatePickerContext = context;
+  const box = document.getElementById("template-picker-list");
+  if (!_templatesCache.length) {
+    box.innerHTML = `<div class="text-muted text-sm">Nenhum modelo salvo ainda — crie um no bloco "🗂️ Modelos de Mensagens" mais abaixo.</div>`;
+  } else {
+    box.innerHTML = _templatesCache.map(t => `
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 4px; border-bottom:1px solid var(--border);">
+        <div>
+          <div><b>${escapeHtml(t.name)}</b>${t.media ? " 📎" : ""}</div>
+          <div class="text-sm text-muted">${escapeHtml((t.message || "").slice(0, 90))}${(t.message || "").length > 90 ? "…" : ""}</div>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" style="white-space:nowrap" onclick='_applyTemplate(${JSON.stringify(t.id)})'>Usar</button>
+      </div>
+    `).join("");
+  }
+  openModal("modal-template-picker");
+}
+
+function _applyTemplate(templateId) {
+  const t = _templatesCache.find(x => x.id === templateId);
+  if (!t) return;
+  if (_templatePickerContext === "campanha") {
+    document.getElementById("camp-message").value = t.message || "";
+    _campSelectedTemplateId = t.media ? templateId : null;
+    if (t.media) toast(`Modelo aplicado — o anexo salvo no modelo será usado (não precisa reanexar).`);
+  } else if (_templatePickerContext === "aleatoria") {
+    document.getElementById("rnd-message").value = t.message || "";
+    _rndSelectedTemplateId = t.media ? templateId : null;
+    if (t.media) toast(`Modelo aplicado — o anexo salvo no modelo será usado (não precisa reanexar).`);
+  }
+  closeModal("modal-template-picker");
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  MENSAGEM ALEATÓRIA PROGRAMÁVEL — envio avulso, número/mensagem na
+//  mão (ou de um modelo), mídia opcional, com agendamento de data/hora.
+// ══════════════════════════════════════════════════════════════════
+let _rndSelectedTemplateId = null;
+
+function toggleRndMediaPicker() {
+  const type = document.getElementById("rnd-media-type").value;
+  const picker = document.getElementById("rnd-media-picker");
+  const fileInput = document.getElementById("rnd-media-file");
+  if (!type) {
+    picker.style.display = "none";
+    fileInput.value = "";
+    document.getElementById("rnd-media-filename").textContent = "Nenhum arquivo selecionado";
+    return;
+  }
+  picker.style.display = "flex";
+  fileInput.accept = type === "image" ? "image/*" : type === "video" ? "video/*" : "";
+}
+
+function _updateRndMediaFilename() {
+  const file = document.getElementById("rnd-media-file").files[0];
+  document.getElementById("rnd-media-filename").textContent = file ? file.name : "Nenhum arquivo selecionado";
+  if (file) _rndSelectedTemplateId = null; // anexo escolhido na mão substitui o do modelo
+}
+
+function clearRandomMessageForm() {
+  document.getElementById("rnd-phone").value = "";
+  document.getElementById("rnd-message").value = "";
+  document.getElementById("rnd-media-type").value = "";
+  document.getElementById("rnd-media-picker").style.display = "none";
+  document.getElementById("rnd-media-file").value = "";
+  document.getElementById("rnd-media-filename").textContent = "Nenhum arquivo selecionado";
+  document.getElementById("rnd-schedule-at").value = "";
+  _rndSelectedTemplateId = null;
+}
+
+async function createRandomMessage() {
+  const phone = document.getElementById("rnd-phone").value.trim();
+  const message = document.getElementById("rnd-message").value.trim();
+  const mediaType = document.getElementById("rnd-media-type").value;
+  const mediaFile = document.getElementById("rnd-media-file").files[0];
+  const scheduledAt = document.getElementById("rnd-schedule-at").value;
+
+  if (!phone) { toast("Informe o número do contato", true); return; }
+  if (!message && !mediaFile && !_rndSelectedTemplateId) { toast("Escreva a mensagem ou anexe uma mídia", true); return; }
+
+  const payload = {
+    phone, message,
+    has_media: Boolean(mediaFile) || Boolean(_rndSelectedTemplateId),
+    scheduled_at: scheduledAt || null,
+    template_id: (!mediaFile && _rndSelectedTemplateId) ? _rndSelectedTemplateId : null,
+  };
+
+  const created = await api("/whatsapp/random-messages", "POST", payload);
+  if (!created) return;
+
+  // Item: igual à campanha — anexo escolhido na mão sobe à parte
+  // (multipart), depois de criar o registro; anexo vindo de modelo já
+  // foi copiado no servidor pelo backend (ver template_id acima).
+  if (mediaType && mediaFile) {
+    const fd = new FormData();
+    fd.append("mediaType", mediaType);
+    fd.append("file", mediaFile);
+    try {
+      const r = await fetch(`/api/whatsapp/random-messages/${created.id}/media`, {
+        method: "POST", headers: { "X-Token": getToken() }, body: fd
+      });
+      const data = await r.json();
+      if (!r.ok) toast(`Mensagem criada, mas o anexo falhou: ${data.error || ""}`, true);
+    } catch (e) {
+      toast("Mensagem criada, mas o anexo falhou ao enviar", true);
+    }
+  }
+
+  toast(scheduledAt
+    ? `Mensagem agendada pra ${new Date(scheduledAt).toLocaleString("pt-BR")}!`
+    : `Mensagem criada — entra na fila de envio imediato.`);
+  clearRandomMessageForm();
+  loadRandomMessages();
+}
+
+function rndStatusBadge(status) {
+  const labels = { pendente: "Pendente", enviada: "Enviada", falhou: "Falhou" };
+  const cls = { pendente: "badge-agendada", enviada: "badge-concluida", falhou: "badge-pausada" };
+  return `<span class="badge-status ${cls[status] || "badge-rascunho"}">${labels[status] || status}</span>`;
+}
+
+async function loadRandomMessages() {
+  const r = await api("/whatsapp/random-messages");
+  const tbody = document.getElementById("rnd-msgs-tbody");
+  if (!tbody) return;
+  if (!r) { tbody.innerHTML = `<tr><td colspan="5" class="text-muted text-sm">Erro ao carregar.</td></tr>`; return; }
+  if (!r.length) { tbody.innerHTML = `<tr><td colspan="5" class="text-muted text-sm">Nenhuma mensagem aleatória criada ainda.</td></tr>`; return; }
+  tbody.innerHTML = r.map(m => `
+    <tr>
+      <td>${escapeHtml(m.phone)}</td>
+      <td class="text-sm text-muted">${escapeHtml((m.message || "").slice(0, 60))}${(m.message || "").length > 60 ? "…" : ""}${m.media ? " 📎" : ""}</td>
+      <td>${m.scheduled_at ? new Date(m.scheduled_at * 1000).toLocaleString("pt-BR") : "–"}</td>
+      <td>${rndStatusBadge(m.status)}</td>
+      <td>${m.status === "pendente"
+        ? `<button class="btn btn-ghost btn-sm" onclick="cancelRandomMessage('${m.id}')">✕ Cancelar</button>`
+        : (m.error ? `<span class="text-sm text-muted" title="${escapeHtml(m.error)}">⚠️ erro</span>` : "")}</td>
+    </tr>
+  `).join("");
+}
+
+async function cancelRandomMessage(id) {
+  if (!confirm("Cancelar essa mensagem agendada?")) return;
+  const r = await api(`/whatsapp/random-messages/${id}`, "DELETE");
+  if (r) { toast("Mensagem cancelada."); loadRandomMessages(); }
+}
+
+initPage();
+loadAutoConfig();
+loadCampaigns();
+loadTagContacts();
+loadSuccessList();
+loadTemplates();
+loadRandomMessages();
+</script>
+</body>
+</html>

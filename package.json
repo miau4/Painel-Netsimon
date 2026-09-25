@@ -1,0 +1,19 @@
+{
+  "name": "netsimon-whatsapp-bot",
+  "version": "1.0.0",
+  "description": "Microservi\u00e7o local de pareamento e envio via WhatsApp (multi-dispositivo) para o Painel Netsimon",
+  "main": "whatsapp_bot.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node whatsapp_bot.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "7.0.0-rc13",
+    "@hapi/boom": "^10.0.1",
+    "express": "^4.19.2",
+    "pino": "^9.3.2",
+    "qrcode": "^1.5.3"
+  }
+}

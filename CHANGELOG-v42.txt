@@ -1,0 +1,39 @@
+Painel Netsimon — v42
+======================
+Gerado a partir da v41. Correções pedidas pelo Simon após uso real em produção.
+
+1) WSS TLS e WSS SSH agora reconhecem QUALQUER porta ativa, não só a padrão
+   Arquivos: painel_api.py, websocket.html
+   Antes: o painel só considerava "WSS TLS" ativo se estivesse exatamente
+   na porta 8443, e "WSS SSH" só na 8888 -- se o admin trocasse a porta
+   pela tela (ex: WSS SSH na 8080), tanto o WebSocket Manager quanto o
+   bloco de Serviços da tela inicial continuavam mostrando tudo como
+   inativo/vermelho, mesmo com o processo rodando normalmente.
+   Agora: uma função nova (_active_template_port) pergunta ao systemd
+   qual porta de fato está ativa pra cada template (wss@*, wss-security@*),
+   em vez de assumir uma porta fixa cravada no código. Os rótulos na tela
+   ("Porta 8443 (WSS TLS)") também passaram a mostrar a porta real em uso.
+   Bônus: ao trocar de porta, a instância antiga na porta anterior agora é
+   derrubada automaticamente (_stop_other_template_instances), pra nunca
+   ficar com duas portas do mesmo protocolo no ar ao mesmo tempo sem o
+   admin perceber.
+
+2) SlowDNS — binário do dnstt-server agora embutido no projeto, sem depender
+   de rede/compilação na hora de instalar
+   Arquivos: painel_api.py, slowdns-server.sh, dnstt-server (novo),
+   README-dnstt.txt (novo), install.sh, repair.sh
+   Antes (v41): se o binário não existisse, o painel tentava compilar
+   sozinho via "go install ...@latest" -- só que isso nunca funcionava de
+   verdade, porque o dnstt não é publicado como módulo versionado no
+   proxy oficial do Go (proxy.golang.org devolve 404 pra ele). Resultado:
+   o erro "falha ao compilar" aparecia sempre, mesmo com internet normal.
+   Agora: o binário já compilado (linux/amd64, a partir do fonte oficial
+   do autor) vem PRONTO junto com o projeto, em /etc/painel/dnstt-server.
+   O painel e o menu SSH só copiam esse arquivo pra /etc/slowdns/ na hora
+   de configurar -- zero rede, zero Go, zero git no servidor. Instruções
+   de como reproduzir/atualizar esse build ficam no README-dnstt.txt.
+
+2 dependências desta mudança:
+   - install.sh e repair.sh agora também baixam o arquivo "dnstt-server"
+     do repositório junto com os demais (fora do loop que roda dos2unix,
+     que corromperia o binário).

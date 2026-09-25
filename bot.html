@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem("ns_theme")==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Netsimon — Bot Telegram</title>
+<link rel="icon" type="image/png" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/painel.css?v=19">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard.html" class="sidebar-logo" title="Início">
+      <div class="logo-icon"><img src="/img/logo.png" alt="Painel Netsimon"></div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="/dashboard.html" class="nav-item active" data-page="dashboard">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-home.png" alt="Início"></span><span>Início</span>
+      </a>
+      <a href="/usuarios.html" class="nav-item" data-page="usuarios">
+        <span class="nav-icon">👤</span><span>Usuários</span>
+      </a>
+      <a href="/todos-usuarios.html" class="nav-item" data-page="todos-usuarios">
+        <span class="nav-icon">👥</span><span>Todos os Usuários</span>
+      </a>
+      <a href="/revendedores.html" class="nav-item reseller-manage-only" data-page="revendedores">
+        <span class="nav-icon">🏪</span><span>Revendedores</span>
+      </a>
+      <a href="/dispositivos.html" class="nav-item" data-page="dispositivos">
+        <span class="nav-icon">📵</span><span>Dispositivos</span>
+      </a>
+      <a href="/xray.html" class="nav-item admin-only" data-page="xray">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-xray.png" alt="Xray"></span><span>Xray</span>
+      </a>
+      <a href="/servidores.html" class="nav-item admin-only" data-page="servidores">
+        <span class="nav-icon">🖧</span><span>Servidores</span>
+      </a>
+      <a href="/diagnostico.html" class="nav-item" data-page="diagnostico">
+        <span class="nav-icon">🛠️</span><span>Manutenção</span>
+      </a>
+      <a href="/whatsapp.html" class="nav-item" data-page="whatsapp">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-whatsapp.png" alt="Bot WhatsApp"></span><span>Bot WhatsApp</span>
+      </a>
+      <a href="/campanhas.html" class="nav-item" data-page="campanhas">
+        <span class="nav-icon">📣</span><span>Campanhas</span>
+      </a>
+      <a href="/app.html" class="nav-item" data-page="app">
+        <span class="nav-icon">📱</span><span>Aplicativo</span>
+      </a>
+      <a href="/backup.html" class="nav-item admin-only" data-page="backup">
+        <span class="nav-icon">💾</span><span>Backup</span>
+      </a>
+      <a href="/bot.html" class="nav-item admin-only" data-page="bot">
+        <span class="nav-icon">🤖</span><span>Bot Telegram</span>
+      </a>
+      <a href="/logs.html" class="nav-item admin-only" data-page="logs">
+        <span class="nav-icon">📋</span><span>Logs</span>
+      </a>
+      <a href="#" class="nav-item admin-only" data-page="terminal" onclick="openTerminal(); return false;">
+        <span class="nav-icon">🖥️</span><span>Terminal</span>
+      </a>
+      <a href="/ia.html" class="nav-item" data-page="ia">
+        <span class="nav-icon">✨</span><span>IA</span>
+      </a>
+      <!-- Item 4: menu novo, exclusivo do admin (não é recurso por revendedor). -->
+      <a href="/material.html" class="nav-item admin-only" data-page="material">
+        <span class="nav-icon">🗃️</span><span>Material</span>
+      </a>
+      <a href="/configuracoes.html" class="nav-item admin-only" data-page="config">
+        <span class="nav-icon">⚙️</span><span>Configurações</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">👑</span>
+        <div>
+          <div class="user-name" id="sidebar-username">–</div>
+          <div class="user-role" id="sidebar-role">–</div>
+        </div>
+      </div>
+      <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema" onclick="toggleTheme()">☀️</button>
+      <button class="btn-logout" id="btn-logout" title="Sair">⏻</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="burger" id="burger">☰</button>
+        <h1 class="page-title">Bot Telegram</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="toggle-wrap">
+          <span class="text-sm" id="bot-status-text">Verificando…</span>
+          <label class="toggle">
+            <input type="checkbox" id="bot-toggle" onchange="toggleBot()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="tabs" id="bot-tabs">
+        <button class="tab-btn active" data-tab="tab-geral">Geral</button>
+        <button class="tab-btn" data-tab="tab-pagamento">Pagamento (PIX)</button>
+        <button class="tab-btn" data-tab="tab-planos">Planos</button>
+      </div>
+
+      <div class="tab-panel active" id="tab-geral">
+        <div class="card-panel">
+          <div class="card-panel-header"><span>⚙️ Configurações Gerais</span></div>
+          <div style="padding:18px" class="form-grid">
+            <div class="form-field">
+              <label>Token do Bot (via @BotFather)</label>
+              <input type="text" id="bot-token" placeholder="123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ">
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label>Chat ID do Admin (para notificações)</label>
+                <input type="text" id="admin-chat-id" placeholder="ex: 123456789">
+              </div>
+              <div class="form-field">
+                <label>Usuário de suporte (@username)</label>
+                <input type="text" id="suporte-user" placeholder="suporte_netsimon">
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="saveGeneral()">Salvar Configurações</button>
+          </div>
+        </div>
+
+        <div class="card-panel" style="margin-top:16px">
+          <div class="card-panel-header"><span>💡 Como pegar o Chat ID</span></div>
+          <div style="padding:18px" class="text-sm text-muted">
+            Envie uma mensagem para o bot <strong>@userinfobot</strong> no Telegram — ele retorna seu Chat ID (para admin) instantaneamente.
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-pagamento">
+        <div class="card-panel">
+          <div class="card-panel-header"><span>💳 Mercado Pago (PIX)</span></div>
+          <div style="padding:18px" class="form-grid">
+            <div class="form-field">
+              <label>Access Token do Mercado Pago</label>
+              <input type="text" id="mp-token" placeholder="APP_USR-xxxxxxxx-xxxxxx-xxxxxxxxxxxxxxxx">
+            </div>
+            <div class="text-sm text-muted">
+              Gere seu token em: <span class="text-mono">mercadopago.com.br → Suas Integrações → Credenciais de Produção</span>
+            </div>
+            <button class="btn btn-primary" onclick="savePayment()">Salvar Configuração de Pagamento</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-planos">
+        <div class="card-panel">
+          <div class="card-panel-header">
+            <span>📦 Planos de Venda</span>
+            <button class="btn btn-ghost btn-sm" onclick="addPlano()">+ Adicionar Plano</button>
+          </div>
+          <div id="planos-list" style="padding:18px; display:flex; flex-direction:column; gap:12px;"></div>
+          <div style="padding:0 18px 18px">
+            <button class="btn btn-primary" onclick="savePlanos()">Salvar Planos</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/painel.js"></script>
+<script>
+let _botCfg = {};
+
+async function loadBotConfig() {
+  const cfg = await api("/bot/config");
+  if (!cfg) return;
+  _botCfg = cfg;
+
+  document.getElementById("bot-token").value = cfg.token || "";
+  document.getElementById("admin-chat-id").value = cfg.admin_chat_id || "";
+  document.getElementById("suporte-user").value = cfg.suporte_user || "";
+  document.getElementById("mp-token").value = cfg.mp_token || "";
+
+  renderPlanos(cfg.planos || []);
+
+  const status = await api("/bot/status");
+  document.getElementById("bot-toggle").checked = !!status?.running;
+  document.getElementById("bot-status-text").textContent = status?.running ? "Ativo" : "Parado";
+}
+
+function renderPlanos(planos) {
+  const el = document.getElementById("planos-list");
+  el.innerHTML = planos.map((p, i) => `
+    <div class="form-row" style="align-items:end; border:1px solid var(--border); border-radius:8px; padding:12px;" data-idx="${i}">
+      <div class="form-field">
+        <label>Nome</label>
+        <input type="text" class="plano-nome" value="${p.nome}">
+      </div>
+      <div class="form-field">
+        <label>Dias</label>
+        <input type="number" class="plano-dias" value="${p.dias}">
+      </div>
+      <div class="form-field">
+        <label>Limite</label>
+        <input type="number" class="plano-limite" value="${p.limite}">
+      </div>
+      <div class="form-field">
+        <label>Preço (R$)</label>
+        <input type="number" step="0.01" class="plano-preco" value="${p.preco}">
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="this.closest('[data-idx]').remove()">🗑</button>
+    </div>
+  `).join("");
+}
+
+function addPlano() {
+  const el = document.getElementById("planos-list");
+  const idx = el.children.length;
+  const div = document.createElement("div");
+  div.className = "form-row";
+  div.style = "align-items:end; border:1px solid var(--border); border-radius:8px; padding:12px;";
+  div.dataset.idx = idx;
+  div.innerHTML = `
+    <div class="form-field"><label>Nome</label><input type="text" class="plano-nome" value="Novo Plano"></div>
+    <div class="form-field"><label>Dias</label><input type="number" class="plano-dias" value="30"></div>
+    <div class="form-field"><label>Limite</label><input type="number" class="plano-limite" value="1"></div>
+    <div class="form-field"><label>Preço (R$)</label><input type="number" step="0.01" class="plano-preco" value="10.00"></div>
+    <button class="btn btn-danger btn-sm" onclick="this.closest('[data-idx]').remove()">🗑</button>
+  `;
+  el.appendChild(div);
+}
+
+async function saveGeneral() {
+  const data = {
+    token: document.getElementById("bot-token").value.trim(),
+    admin_chat_id: document.getElementById("admin-chat-id").value.trim(),
+    suporte_user: document.getElementById("suporte-user").value.trim()
+  };
+  const r = await api("/bot/config", "POST", data);
+  if (!r) return;
+  toast("Configurações salvas!");
+}
+
+async function savePayment() {
+  const data = { mp_token: document.getElementById("mp-token").value.trim() };
+  const r = await api("/bot/config", "POST", data);
+  if (!r) return;
+  toast("Configuração de pagamento salva!");
+}
+
+async function savePlanos() {
+  const rows = document.querySelectorAll("#planos-list [data-idx]");
+  const planos = Array.from(rows).map(row => ({
+    nome:   row.querySelector(".plano-nome").value,
+    dias:   parseInt(row.querySelector(".plano-dias").value) || 30,
+    limite: parseInt(row.querySelector(".plano-limite").value) || 1,
+    preco:  parseFloat(row.querySelector(".plano-preco").value) || 0
+  }));
+  const r = await api("/bot/config", "POST", { planos });
+  if (!r) return;
+  toast("Planos salvos!");
+}
+
+async function toggleBot() {
+  const r = await api("/bot/toggle", "POST");
+  if (!r) { document.getElementById("bot-toggle").checked = !document.getElementById("bot-toggle").checked; return; }
+  document.getElementById("bot-status-text").textContent = r.running ? "Ativo" : "Parado";
+  toast(r.running ? "Bot iniciado!" : "Bot parado!");
+}
+
+initPage();
+initTabs("#bot-tabs, .content");
+document.querySelectorAll("#bot-tabs .tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#bot-tabs .tab-btn").forEach(b => b.classList.toggle("active", b === btn));
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === btn.dataset.tab));
+  });
+});
+loadBotConfig();
+</script>
+</body>
+</html>

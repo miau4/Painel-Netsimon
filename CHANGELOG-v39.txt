@@ -1,0 +1,29 @@
+Painel Netsimon — v39
+======================
+Gerado a partir da v38, com as duas correções abaixo já aplicadas no
+código-fonte (os fixes .sh equivalentes também foram entregues separadamente,
+para quem preferir aplicar em cima de uma v38 já instalada em produção).
+
+1) WebSocket Manager — porta livre por protocolo
+   Arquivos: painel_api.py, websocket.html
+   Antes: o WebSocket Proxy simples (proxy.py) só podia rodar na porta 80 e
+   a WebSocket Security (security.py) só na 8080 — qualquer outra
+   combinação era recusada pela API.
+   Agora: os endpoints /api/websocket/start e /api/websocket/stop aceitam
+   qualquer porta válida, reaproveitando o template systemd
+   "proxy@.service". Pedir a 8080 pro Proxy simples para a Security ali
+   automaticamente (e vice-versa, ao pedir a 80 pra Security). O painel
+   ganhou um campo "Porta" editável nos dois cards do WebSocket Manager.
+   O padrão automático em instalação/reboot continua igual: Proxy na 80,
+   Security na 8080.
+
+2) Menu "⚙ Opções" (tela Usuários) aparecendo atrás da lista
+   Arquivo: usuarios.html
+   Antes: o menu de ações em lote (Adicionar 1 dia, Adicionar 30 dias,
+   Desbloquear, Suspender, Excluir selecionados) ficava escondido atrás do
+   card da tabela de usuários, por causa do "overflow: hidden" herdado do
+   .card-panel genérico do painel.css.
+   Agora: o card de filtros da tela Usuários ganhou uma classe própria
+   (card-panel-allow-overflow) que libera esse overflow só para ele, sem
+   afetar os demais cards do painel, e o menu passou a usar o mesmo
+   z-index (500) já usado pelo dropdown de notificações.

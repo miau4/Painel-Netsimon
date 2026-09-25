@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem("ns_theme")==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Netsimon — Todos os Usuários</title>
+<link rel="icon" type="image/png" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/painel.css?v=19">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard.html" class="sidebar-logo" title="Início">
+      <div class="logo-icon"><img src="/img/logo.png" alt="Painel Netsimon"></div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="/dashboard.html" class="nav-item" data-page="dashboard">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-home.png" alt="Início"></span><span>Início</span>
+      </a>
+      <a href="/usuarios.html" class="nav-item" data-page="usuarios">
+        <span class="nav-icon">👤</span><span>Usuários</span>
+      </a>
+      <a href="/todos-usuarios.html" class="nav-item" data-page="todos-usuarios">
+        <span class="nav-icon">👥</span><span>Todos os Usuários</span>
+      </a>
+      <a href="/revendedores.html" class="nav-item reseller-manage-only" data-page="revendedores">
+        <span class="nav-icon">🏪</span><span>Revendedores</span>
+      </a>
+      <a href="/dispositivos.html" class="nav-item" data-page="dispositivos">
+        <span class="nav-icon">📵</span><span>Dispositivos</span>
+      </a>
+      <a href="/xray.html" class="nav-item admin-only" data-page="xray">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-xray.png" alt="Xray"></span><span>Xray</span>
+      </a>
+      <a href="/servidores.html" class="nav-item admin-only" data-page="servidores">
+        <span class="nav-icon">🖧</span><span>Servidores</span>
+      </a>
+      <a href="/diagnostico.html" class="nav-item" data-page="diagnostico">
+        <span class="nav-icon">🛠️</span><span>Manutenção</span>
+      </a>
+      <a href="/whatsapp.html" class="nav-item" data-page="whatsapp">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-whatsapp.png" alt="Bot WhatsApp"></span><span>Bot WhatsApp</span>
+      </a>
+      <a href="/campanhas.html" class="nav-item" data-page="campanhas">
+        <span class="nav-icon">📣</span><span>Campanhas</span>
+      </a>
+      <a href="/app.html" class="nav-item" data-page="app">
+        <span class="nav-icon">📱</span><span>Aplicativo</span>
+      </a>
+      <a href="/backup.html" class="nav-item admin-only" data-page="backup">
+        <span class="nav-icon">💾</span><span>Backup</span>
+      </a>
+      <a href="/bot.html" class="nav-item admin-only" data-page="bot">
+        <span class="nav-icon">🤖</span><span>Bot Telegram</span>
+      </a>
+      <a href="/logs.html" class="nav-item admin-only" data-page="logs">
+        <span class="nav-icon">📋</span><span>Logs</span>
+      </a>
+      <a href="#" class="nav-item admin-only" data-page="terminal" onclick="openTerminal(); return false;">
+        <span class="nav-icon">🖥️</span><span>Terminal</span>
+      </a>
+      <a href="/ia.html" class="nav-item" data-page="ia">
+        <span class="nav-icon">✨</span><span>IA</span>
+      </a>
+      <!-- Item 4: menu novo, exclusivo do admin (não é recurso por revendedor). -->
+      <a href="/material.html" class="nav-item admin-only" data-page="material">
+        <span class="nav-icon">🗃️</span><span>Material</span>
+      </a>
+      <a href="/configuracoes.html" class="nav-item admin-only" data-page="config">
+        <span class="nav-icon">⚙️</span><span>Configurações</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">👑</span>
+        <div>
+          <div class="user-name" id="sidebar-username">–</div>
+          <div class="user-role" id="sidebar-role">–</div>
+        </div>
+      </div>
+      <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema" onclick="toggleTheme()">☀️</button>
+      <button class="btn-logout" id="btn-logout" title="Sair">⏻</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="burger" id="burger">☰</button>
+        <h1 class="page-title">Todos os Usuários</h1>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="card-panel">
+        <div style="padding:12px 18px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+          <input type="text" id="filter-search" placeholder="🔍 Buscar usuário ou criador..." style="min-width:200px; max-width:240px; flex-shrink:0; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; padding:7px 12px; outline:none;">
+          <select id="filter-status" style="min-width:150px; flex-shrink:0; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; padding:7px 12px; outline:none;">
+            <option value="">Todos os status</option>
+            <option value="online">Online</option>
+            <option value="active">Ativos</option>
+            <option value="expired">Expirados</option>
+            <option value="blocked">Bloqueados</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" style="flex-shrink:0; white-space:nowrap;" onclick="loadAll()">↻ Atualizar</button>
+          <span class="text-muted" id="user-count" style="margin-left:auto; font-size:12px; flex-shrink:0;">–</span>
+        </div>
+      </div>
+
+      <div class="card-panel" style="flex-shrink:0;">
+        <div class="table-wrap">
+          <table id="users-table">
+            <thead>
+              <tr>
+                <th class="th-sort" data-sort="login">Usuário <span class="sort-arrow"></span></th>
+                <th class="th-sort" data-sort="criado_por">Criado por <span class="sort-arrow"></span></th>
+                <th class="th-sort" data-sort="criado_por_nivel">Nível <span class="sort-arrow"></span></th>
+                <th class="th-sort" data-sort="status">Status <span class="sort-arrow"></span></th>
+                <th class="th-sort" data-sort="expira">Expiração <span class="sort-arrow"></span></th>
+                <th>Limite</th>
+                <th>Online há</th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody">
+              <tr><td colspan="7" style="text-align:center; padding:32px; color:var(--muted);">Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/painel.js"></script>
+<script>
+let _allUsers = [];
+let _sortKey = null, _sortDir = 1;
+
+function fmtDuration(sec) {
+  if (!sec) return "–";
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  return h > 0 ? `${h}h${String(m).padStart(2,"0")}min` : `${m}min`;
+}
+
+function levelLabel(u) {
+  if (u.criado_por_nivel === "admin") return `<span class="badge badge-muted">Admin</span>`;
+  if (u.criado_por_nivel === 2) return `<span class="badge badge-warn">Nível 2</span>`;
+  if (u.criado_por_nivel === 3) return `<span class="badge badge-danger">Nível 3</span>`;
+  return "–";
+}
+
+async function loadAll() {
+  const data = await api("/users/all");
+  if (!data) return;
+  _allUsers = data;
+  render();
+}
+
+function sortList(list) {
+  if (!_sortKey) return list;
+  return [...list].sort((a, b) => {
+    let va, vb;
+    if (_sortKey === "status") {
+      const rank = u => u.blocked ? 3 : u.expired ? 2 : u.online ? 1 : 0;
+      va = rank(a); vb = rank(b);
+    } else {
+      va = (a[_sortKey] ?? "").toString().toLowerCase();
+      vb = (b[_sortKey] ?? "").toString().toLowerCase();
+    }
+    if (va < vb) return -1 * _sortDir;
+    if (va > vb) return 1 * _sortDir;
+    return 0;
+  });
+}
+
+document.querySelectorAll(".th-sort").forEach(th => {
+  th.style.cursor = "pointer";
+  th.addEventListener("click", () => {
+    const key = th.dataset.sort;
+    if (_sortKey === key) { _sortDir *= -1; } else { _sortKey = key; _sortDir = 1; }
+    document.querySelectorAll(".th-sort .sort-arrow").forEach(a => a.textContent = "");
+    th.querySelector(".sort-arrow").textContent = _sortDir === 1 ? "▲" : "▼";
+    render();
+  });
+});
+
+function render() {
+  const search = document.getElementById("filter-search").value.toLowerCase();
+  const status = document.getElementById("filter-status").value;
+
+  let list = _allUsers.filter(u => {
+    if (search && !u.login.toLowerCase().includes(search) && !(u.criado_por||"").toLowerCase().includes(search)) return false;
+    if (status === "online"  && !u.online)  return false;
+    if (status === "expired" && !u.expired) return false;
+    if (status === "blocked" && !u.blocked) return false;
+    if (status === "active"  && (u.expired || u.blocked)) return false;
+    return true;
+  });
+
+  list = sortList(list);
+  document.getElementById("user-count").textContent = `${list.length} usuário(s)`;
+
+  const tbody = document.getElementById("users-tbody");
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Nenhum usuário encontrado</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(u => {
+    const statusBadge = u.blocked
+      ? `<span class="badge badge-danger">Bloqueado</span>`
+      : u.expired
+        ? `<span class="badge badge-warn">Expirado</span>`
+        : u.online
+          ? `<span class="badge badge-success">Online</span>`
+          : `<span class="badge badge-muted">Ativo</span>`;
+    return `<tr>
+      <td><strong class="text-mono">${u.login}</strong></td>
+      <td class="text-sm">${u.criado_por}</td>
+      <td>${levelLabel(u)}</td>
+      <td>${statusBadge}</td>
+      <td class="text-sm ${u.expired ? 'text-muted' : ''}">${fmtDate(u.expira)}</td>
+      <td>${u.limite}</td>
+      <td class="text-sm">${u.online ? fmtDuration(u.online_seconds) : "–"}</td>
+    </tr>`;
+  }).join("");
+}
+
+document.getElementById("filter-search").addEventListener("input", render);
+document.getElementById("filter-status").addEventListener("change", render);
+
+initPage();
+loadAll();
+setInterval(loadAll, 20000);
+</script>
+</body>
+</html>

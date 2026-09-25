@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem("ns_theme")==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Netsimon — Servidores</title>
+<link rel="icon" type="image/png" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/painel.css?v=19">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard.html" class="sidebar-logo" title="Início">
+      <div class="logo-icon"><img src="/img/logo.png" alt="Painel Netsimon"></div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="/dashboard.html" class="nav-item active" data-page="dashboard">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-home.png" alt="Início"></span><span>Início</span>
+      </a>
+      <a href="/usuarios.html" class="nav-item" data-page="usuarios">
+        <span class="nav-icon">👤</span><span>Usuários</span>
+      </a>
+      <a href="/todos-usuarios.html" class="nav-item" data-page="todos-usuarios">
+        <span class="nav-icon">👥</span><span>Todos os Usuários</span>
+      </a>
+      <a href="/revendedores.html" class="nav-item reseller-manage-only" data-page="revendedores">
+        <span class="nav-icon">🏪</span><span>Revendedores</span>
+      </a>
+      <a href="/dispositivos.html" class="nav-item" data-page="dispositivos">
+        <span class="nav-icon">📵</span><span>Dispositivos</span>
+      </a>
+      <a href="/xray.html" class="nav-item admin-only" data-page="xray">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-xray.png" alt="Xray"></span><span>Xray</span>
+      </a>
+      <a href="/servidores.html" class="nav-item admin-only" data-page="servidores">
+        <span class="nav-icon">🖧</span><span>Servidores</span>
+      </a>
+      <a href="/diagnostico.html" class="nav-item" data-page="diagnostico">
+        <span class="nav-icon">🛠️</span><span>Manutenção</span>
+      </a>
+      <a href="/whatsapp.html" class="nav-item" data-page="whatsapp">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-whatsapp.png" alt="Bot WhatsApp"></span><span>Bot WhatsApp</span>
+      </a>
+      <a href="/campanhas.html" class="nav-item" data-page="campanhas">
+        <span class="nav-icon">📣</span><span>Campanhas</span>
+      </a>
+      <a href="/app.html" class="nav-item" data-page="app">
+        <span class="nav-icon">📱</span><span>Aplicativo</span>
+      </a>
+      <a href="/backup.html" class="nav-item admin-only" data-page="backup">
+        <span class="nav-icon">💾</span><span>Backup</span>
+      </a>
+      <a href="/bot.html" class="nav-item admin-only" data-page="bot">
+        <span class="nav-icon">🤖</span><span>Bot Telegram</span>
+      </a>
+      <a href="/logs.html" class="nav-item admin-only" data-page="logs">
+        <span class="nav-icon">📋</span><span>Logs</span>
+      </a>
+      <a href="#" class="nav-item admin-only" data-page="terminal" onclick="openTerminal(); return false;">
+        <span class="nav-icon">🖥️</span><span>Terminal</span>
+      </a>
+      <a href="/ia.html" class="nav-item" data-page="ia">
+        <span class="nav-icon">✨</span><span>IA</span>
+      </a>
+      <!-- Item 4: menu novo, exclusivo do admin (não é recurso por revendedor). -->
+      <a href="/material.html" class="nav-item admin-only" data-page="material">
+        <span class="nav-icon">🗃️</span><span>Material</span>
+      </a>
+      <a href="/configuracoes.html" class="nav-item admin-only" data-page="config">
+        <span class="nav-icon">⚙️</span><span>Configurações</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">👑</span>
+        <div>
+          <div class="user-name" id="sidebar-username">–</div>
+          <div class="user-role" id="sidebar-role">–</div>
+        </div>
+      </div>
+      <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema" onclick="toggleTheme()">☀️</button>
+      <button class="btn-logout" id="btn-logout" title="Sair">⏻</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="burger" id="burger">☰</button>
+        <h1 class="page-title">Servidores</h1>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-server')">+ Registrar Servidor</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="card-panel">
+        <div style="padding:14px 18px" class="text-sm text-muted">
+          Registre outros servidores Painel Netsimon aqui para gerenciar todos em paralelo. Toda ação de
+          usuário (criar, remover, testar, desbloquear) feita neste painel é replicada automaticamente
+          para todos os servidores abaixo — sem precisar repetir a operação em cada um.
+        </div>
+      </div>
+
+      <div class="card-panel" style="margin-top:16px">
+        <div class="card-panel-header"><span>🔑 Token de Sincronização deste Servidor</span></div>
+        <div style="padding:18px" class="form-grid">
+          <div class="text-sm text-muted">
+            Para gerenciar ESTE servidor a partir de outro painel, copie o token abaixo e cole no
+            formulário "Registrar Servidor" da outra instância.
+          </div>
+          <div style="display:flex; gap:8px; align-items:center">
+            <input type="text" id="self-token" readonly value="carregando…" style="font-family:monospace; font-size:12px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:8px 10px; flex:1">
+            <button class="btn btn-ghost btn-sm" onclick="copySelfToken()">📋 Copiar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel" style="margin-top:16px">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Host</th>
+                <th>Porta</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="servers-tbody">
+              <tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal: Registrar Servidor -->
+<div class="modal-overlay" id="modal-server">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">🖧 Registrar Servidor</span>
+      <button class="modal-close" onclick="closeModal('modal-server')">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Nome (identificação)</label>
+        <input type="text" id="s-name" placeholder="ex: Servidor SP-01">
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Host / IP</label>
+          <input type="text" id="s-host" placeholder="ex: 1.2.3.4">
+        </div>
+        <div class="form-field">
+          <label>Porta do Painel</label>
+          <input type="number" id="s-port" value="81">
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Token de Sincronização (do outro servidor)</label>
+        <input type="text" id="s-token" placeholder="cole aqui o token gerado no outro painel">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-server')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addServer()">Registrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/painel.js"></script>
+<script>
+async function loadSelfToken() {
+  const r = await api("/servers/self-token");
+  if (r) document.getElementById("self-token").value = r.token;
+}
+
+function copySelfToken() {
+  copyText(document.getElementById("self-token").value);
+}
+
+async function loadServers() {
+  const data = await api("/servers");
+  if (!data) return;
+
+  const tbody = document.getElementById("servers-tbody");
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">Nenhum servidor registrado ainda</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map(s => `
+    <tr>
+      <td><strong>${s.name}</strong></td>
+      <td class="text-mono text-sm">${s.host}</td>
+      <td class="text-sm">${s.port}</td>
+      <td>${s.online ? '<span class="badge badge-success">Online</span>' : '<span class="badge badge-danger">Offline</span>'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="removeServer('${s.id}')">🗑 Remover</button></td>
+    </tr>
+  `).join("");
+}
+
+async function addServer() {
+  const name  = document.getElementById("s-name").value.trim();
+  const host  = document.getElementById("s-host").value.trim();
+  const port  = parseInt(document.getElementById("s-port").value) || 81;
+  const token = document.getElementById("s-token").value.trim();
+
+  if (!name || !host || !token) { toast("Preencha nome, host e token", true); return; }
+
+  const r = await api("/servers", "POST", { name, host, port, token });
+  if (!r) return;
+  toast(`Servidor ${name} registrado!`);
+  closeModal("modal-server");
+  ["s-name","s-host","s-token"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("s-port").value = 81;
+  loadServers();
+}
+
+async function removeServer(id) {
+  if (!confirm2("Remover este servidor da lista? As ações deixarão de ser replicadas para ele (os usuários já criados nele NÃO são apagados).")) return;
+  const r = await api(`/servers/${id}`, "DELETE");
+  if (!r) return;
+  toast("Servidor removido!");
+  loadServers();
+}
+
+initPage();
+loadSelfToken();
+loadServers();
+setInterval(loadServers, 20000);
+</script>
+</body>
+</html>

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem("ns_theme")==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Netsimon — WebSocket</title>
+<link rel="icon" type="image/png" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/painel.css?v=19">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard.html" class="sidebar-logo" title="Início">
+      <div class="logo-icon"><img src="/img/logo.png" alt="Painel Netsimon"></div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="/dashboard.html" class="nav-item active" data-page="dashboard">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-home.png" alt="Início"></span><span>Início</span>
+      </a>
+      <a href="/usuarios.html" class="nav-item" data-page="usuarios">
+        <span class="nav-icon">👤</span><span>Usuários</span>
+      </a>
+      <a href="/todos-usuarios.html" class="nav-item" data-page="todos-usuarios">
+        <span class="nav-icon">👥</span><span>Todos os Usuários</span>
+      </a>
+      <a href="/revendedores.html" class="nav-item reseller-manage-only" data-page="revendedores">
+        <span class="nav-icon">🏪</span><span>Revendedores</span>
+      </a>
+      <a href="/dispositivos.html" class="nav-item" data-page="dispositivos">
+        <span class="nav-icon">📵</span><span>Dispositivos</span>
+      </a>
+      <a href="/xray.html" class="nav-item admin-only" data-page="xray">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-xray.png" alt="Xray"></span><span>Xray</span>
+      </a>
+      <a href="/servidores.html" class="nav-item admin-only" data-page="servidores">
+        <span class="nav-icon">🖧</span><span>Servidores</span>
+      </a>
+      <a href="/diagnostico.html" class="nav-item" data-page="diagnostico">
+        <span class="nav-icon">🛠️</span><span>Manutenção</span>
+      </a>
+      <a href="/whatsapp.html" class="nav-item" data-page="whatsapp">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-whatsapp.png" alt="Bot WhatsApp"></span><span>Bot WhatsApp</span>
+      </a>
+      <a href="/campanhas.html" class="nav-item" data-page="campanhas">
+        <span class="nav-icon">📣</span><span>Campanhas</span>
+      </a>
+      <a href="/app.html" class="nav-item" data-page="app">
+        <span class="nav-icon">📱</span><span>Aplicativo</span>
+      </a>
+      <a href="/backup.html" class="nav-item admin-only" data-page="backup">
+        <span class="nav-icon">💾</span><span>Backup</span>
+      </a>
+      <a href="/bot.html" class="nav-item admin-only" data-page="bot">
+        <span class="nav-icon">🤖</span><span>Bot Telegram</span>
+      </a>
+      <a href="/logs.html" class="nav-item admin-only" data-page="logs">
+        <span class="nav-icon">📋</span><span>Logs</span>
+      </a>
+      <a href="#" class="nav-item admin-only" data-page="terminal" onclick="openTerminal(); return false;">
+        <span class="nav-icon">🖥️</span><span>Terminal</span>
+      </a>
+      <a href="/ia.html" class="nav-item" data-page="ia">
+        <span class="nav-icon">✨</span><span>IA</span>
+      </a>
+      <!-- Item 4: menu novo, exclusivo do admin (não é recurso por revendedor). -->
+      <a href="/material.html" class="nav-item admin-only" data-page="material">
+        <span class="nav-icon">🗃️</span><span>Material</span>
+      </a>
+      <a href="/configuracoes.html" class="nav-item admin-only" data-page="config">
+        <span class="nav-icon">⚙️</span><span>Configurações</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">👑</span>
+        <div>
+          <div class="user-name" id="sidebar-username">–</div>
+          <div class="user-role" id="sidebar-role">–</div>
+        </div>
+      </div>
+      <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema" onclick="toggleTheme()">☀️</button>
+      <button class="btn-logout" id="btn-logout" title="Sair">⏻</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="burger" id="burger">☰</button>
+        <h1 class="page-title">WebSocket Manager</h1>
+      </div>
+    </header>
+
+    <div class="content">
+      <p class="text-sm text-muted" style="margin:0 0 16px">
+        5 modos de conexão disponíveis, todos com porta livre pra escolher e reinício automático
+        (systemd, <span class="text-mono">Restart=always</span>) — cada um pode rodar sozinho ou junto
+        com os outros, em portas diferentes.
+      </p>
+
+      <div class="cards-grid" style="grid-template-columns:repeat(2,1fr)">
+        <div class="card-stat">
+          <div class="card-stat-icon" style="--c:#a855f7">🌐</div>
+          <div class="card-stat-info">
+            <div class="card-stat-val" id="ws-port80-val">–</div>
+            <div class="card-stat-label">Porta 80 (WS PROXY)</div>
+            <div class="text-muted" id="ws-port80-service" style="font-size:11px; margin-top:2px">–</div>
+          </div>
+        </div>
+        <div class="card-stat">
+          <div class="card-stat-icon" style="--c:#a855f7">🔒</div>
+          <div class="card-stat-info">
+            <div class="card-stat-val" id="ws-port8443-val">–</div>
+            <div class="card-stat-label" id="ws-port8443-label">Porta 8443 (WSS TLS)</div>
+            <div class="text-muted" id="ws-port8443-service" style="font-size:11px; margin-top:2px">–</div>
+          </div>
+        </div>
+        <div class="card-stat">
+          <div class="card-stat-icon" style="--c:#a855f7">🔐</div>
+          <div class="card-stat-info">
+            <div class="card-stat-val" id="ws-port8888-val">–</div>
+            <div class="card-stat-label" id="ws-port8888-label">Porta 8888 (WSS SSH)</div>
+            <div class="text-muted" id="ws-port8888-service" style="font-size:11px; margin-top:2px">–</div>
+          </div>
+        </div>
+        <div class="card-stat">
+          <div class="card-stat-icon" style="--c:#22c55e">🛡️</div>
+          <div class="card-stat-info">
+            <div class="card-stat-val" id="ws-stunnel-val">–</div>
+            <div class="card-stat-label" id="ws-stunnel-label">STUNNEL SSL</div>
+            <div class="text-muted" id="ws-stunnel-service" style="font-size:11px; margin-top:2px">–</div>
+          </div>
+        </div>
+        <div class="card-stat">
+          <div class="card-stat-icon" style="--c:#f97316">📡</div>
+          <div class="card-stat-info">
+            <div class="card-stat-val" id="ws-bhttp-val">–</div>
+            <div class="card-stat-label">BHTTP</div>
+            <div class="text-muted" id="ws-bhttp-service" style="font-size:11px; margin-top:2px">–</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="card-panel-header"><span>🔌 1. WS PROXY (proxy.py, sem TLS)</span></div>
+        <div style="padding:18px; display:flex; flex-direction:column; gap:10px;">
+          <div class="text-sm text-muted" style="margin-bottom:4px">
+            Disfarça o tráfego SSH como uma conexão web comum (handshake HTTP), sem criptografia própria —
+            mais leve, mas visível em texto claro pra quem inspecionar o tráfego. Padrão automático na
+            instalação/reinício do servidor: porta 80. Escolha outra porta abaixo pra trocar quando quiser —
+            se a porta escolhida já tiver algum dos outros 3 modos ativo nela, ele é parado automaticamente
+            pra liberar o lugar.
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center">
+            <label class="text-sm text-muted" for="ws-proxy-port">Porta:</label>
+            <input type="number" id="ws-proxy-port" style="width:90px" min="1" max="65535" value="80">
+            <button class="btn btn-primary btn-sm" onclick="wsAction('start')">▶️ Iniciar</button>
+            <button class="btn btn-danger btn-sm" onclick="wsAction('stop')">⏹ Parar</button>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="wsRestartAll()">↺ Reiniciar os 4 modos</button>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="card-panel-header"><span>🔒 2. WSS TLS (TLS real)</span></div>
+        <div style="padding:18px; display:flex; flex-direction:column; gap:10px;">
+          <div class="text-sm text-muted" style="margin-bottom:4px">
+            Handshake WebSocket (RFC6455) de verdade, com TLS real por cima (certificado gerado na
+            instalação) — o tráfego fica ilegível pra quem inspecionar a rede. Padrão automático na
+            instalação/reinício do servidor: porta 8443.
+          </div>
+          <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end">
+            <div>
+              <label class="text-sm text-muted" for="wss-port" style="display:block; margin-bottom:4px">Porta:</label>
+              <input type="number" id="wss-port" style="width:100px" min="1" max="65535" value="8443">
+            </div>
+            <div>
+              <label class="text-sm text-muted" for="wss-dest" style="display:block; margin-bottom:4px">Destino (porta):</label>
+              <input type="number" id="wss-dest" style="width:100px" min="1" max="65535" value="22">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="wssAction('start')">▶️ Iniciar</button>
+            <button class="btn btn-danger btn-sm" onclick="wssAction('stop')">⏹ Parar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="card-panel-header"><span>🔐 3. WSS SSH (sem TLS)</span></div>
+        <div style="padding:18px; display:flex; flex-direction:column; gap:10px;">
+          <div class="text-sm text-muted" style="margin-bottom:4px">
+            Camuflagem "HTTP/1.1 101 SECURITY" confirmada por captura de rede real — sem TLS por cima.
+            Padrão automático na instalação/reinício do servidor: porta 8888. Porta e destino (pra onde
+            o tráfego é entregue depois de descamuflado) são livres pra trocar abaixo.
+          </div>
+          <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end">
+            <div>
+              <label class="text-sm text-muted" for="wsssec-port" style="display:block; margin-bottom:4px">Porta:</label>
+              <input type="number" id="wsssec-port" style="width:100px" min="1" max="65535" value="8888">
+            </div>
+            <div>
+              <label class="text-sm text-muted" for="wsssec-dest" style="display:block; margin-bottom:4px">Destino (porta):</label>
+              <input type="number" id="wsssec-dest" style="width:100px" min="1" max="65535" value="22">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="wsssecAction('start')">▶️ Iniciar</button>
+            <button class="btn btn-danger btn-sm" onclick="wsssecAction('stop')">⏹ Parar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="card-panel-header"><span>🛡️ 4. STUNNEL SSL (SSH sobre TLS "cru")</span></div>
+        <div style="padding:18px; display:flex; flex-direction:column; gap:10px;">
+          <div class="text-sm text-muted" style="margin-bottom:4px">
+            Encapsula o SSH direto num túnel TLS separado (sem a camuflagem HTTP dos modos WSS TLS/WSS SSH acima)
+            — útil quando o cliente só precisa de uma porta puramente TLS. Padrão automático na instalação:
+            porta 2053 → 127.0.0.1:22.
+          </div>
+          <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end">
+            <div>
+              <label class="text-sm text-muted" for="stunnel-port" style="display:block; margin-bottom:4px">Porta de entrada:</label>
+              <input type="number" id="stunnel-port" style="width:110px" min="1" max="65535" value="2053">
+            </div>
+            <div>
+              <label class="text-sm text-muted" for="stunnel-dest" style="display:block; margin-bottom:4px">Porta de direcionamento:</label>
+              <input type="number" id="stunnel-dest" style="width:110px" min="1" max="65535" value="22">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="stunnelAction('start')">▶️ Iniciar / Aplicar</button>
+            <button class="btn btn-danger btn-sm" onclick="stunnelAction('stop')">⏹ Parar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="card-panel-header"><span>📡 5. NETSIMON-BHTTP</span></div>
+        <div style="padding:18px; display:flex; flex-direction:column; gap:10px;">
+          <div class="text-sm text-muted" style="margin-bottom:4px">
+            Servidor BHTTP embutido no painel — o binário já vem dentro do próprio projeto, nada é baixado
+            de repositório externo na instalação nem na ativação. Fica <strong>instalado mas desligado</strong>
+            por padrão; ative quando quiser pelas portas abaixo. Ativar aqui libera automaticamente as
+            portas escolhidas dos outros modos (WS Proxy / WSS / WSS SSH / Xray) que estiverem ocupando-as.
+          </div>
+          <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end">
+            <div>
+              <label class="text-sm text-muted" for="bhttp-http-port" style="display:block; margin-bottom:4px">Porta HTTP:</label>
+              <input type="number" id="bhttp-http-port" style="width:110px" min="1" max="65535" value="80">
+            </div>
+            <div>
+              <label class="text-sm text-muted" for="bhttp-https-port" style="display:block; margin-bottom:4px">Porta HTTPS:</label>
+              <input type="number" id="bhttp-https-port" style="width:110px" min="1" max="65535" value="443">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="bhttpAction('start')">▶️ Ativar</button>
+            <button class="btn btn-danger btn-sm" onclick="bhttpAction('stop')">⏹ Desativar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="card-panel-header"><span>📊 Relatório de Portas</span></div>
+        <div style="padding:18px">
+          <button class="btn btn-ghost btn-sm" onclick="loadPortsReport()">↻ Atualizar Relatório</button>
+          <div id="ports-report" class="text-sm text-muted" style="margin-top:12px">–</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/painel.js"></script>
+<script>
+// Item: descrição de qual serviço está de fato ativo em cada porta —
+// antes só mostrava "Ativa/Inativa" sem dizer qual dos 4 modos assumiu.
+const WS_SERVICE_LABEL = {
+  proxy:   "🔌 WS PROXY ativo",
+  wss:     "🔒 WSS TLS ativo",
+  wsssec:  "🔐 WSS SSH ativo",
+  stunnel: "🛡️ STUNNEL SSL ativo",
+  other:   "⚠️ Outro processo nesta porta",
+};
+
+async function loadWsStatus() {
+  const data = await api("/websocket/status");
+  if (!data) return;
+  document.getElementById("ws-port80-val").innerHTML = data.port80
+    ? '<span class="badge badge-success">Ativa</span>' : '<span class="badge badge-danger">Inativa</span>';
+  document.getElementById("ws-port8443-val").innerHTML = data.port8443
+    ? '<span class="badge badge-success">Ativa</span>' : '<span class="badge badge-danger">Inativa</span>';
+  document.getElementById("ws-port8888-val").innerHTML = data.port8888
+    ? '<span class="badge badge-success">Ativa</span>' : '<span class="badge badge-danger">Inativa</span>';
+  document.getElementById("ws-stunnel-val").innerHTML = data.listen_stunnel
+    ? '<span class="badge badge-success">Ativa</span>' : '<span class="badge badge-danger">Inativa</span>';
+  document.getElementById("ws-stunnel-label").textContent = `STUNNEL SSL (porta ${data.port_stunnel})`;
+  // Item: label mostra a porta REAL em uso (pode ter sido trocada pela
+  // tela), não mais um número fixo de 8443/8888 -- mesma ideia que já
+  // existia pro STUNNEL logo acima.
+  document.getElementById("ws-port8443-label").textContent = `Porta ${data.port_wss} (WSS TLS)`;
+  document.getElementById("ws-port8888-label").textContent = `Porta ${data.port_wsssec} (WSS SSH)`;
+  // Só atualiza o valor dos campos de porta se o protocolo estiver
+  // ativo -- assim não sobrescreve o que o admin acabou de digitar
+  // pra iniciar numa porta nova ainda parada.
+  if (data.port8443) document.getElementById("wss-port").value = data.port_wss;
+  if (data.port8888) document.getElementById("wsssec-port").value = data.port_wsssec;
+
+  document.getElementById("ws-port80-service").textContent = data.port80
+    ? (WS_SERVICE_LABEL[data.service80] || "Serviço não identificado")
+    : "Nenhum serviço nesta porta";
+  document.getElementById("ws-port8443-service").textContent = data.port8443
+    ? (WS_SERVICE_LABEL[data.service8443] || "Serviço não identificado")
+    : "Nenhum serviço nesta porta";
+  document.getElementById("ws-port8888-service").textContent = data.port8888
+    ? (WS_SERVICE_LABEL[data.service8888] || "Serviço não identificado")
+    : "Nenhum serviço nesta porta";
+  document.getElementById("ws-stunnel-service").textContent = data.listen_stunnel
+    ? (WS_SERVICE_LABEL[data.service_stunnel] || "Serviço não identificado")
+    : "Nenhum serviço nesta porta";
+}
+
+async function wsAction(action) {
+  // Item: porta livre pro WS PROXY -- lê do campo
+  // "Porta" do card, permitindo trocar pra qualquer outra.
+  const port = parseInt(document.getElementById("ws-proxy-port").value, 10) || 80;
+  const r = await api(`/websocket/${action}`, "POST", { port });
+  if (!r) return;
+  toast(`WS PROXY — porta ${port}: ${action === "start" ? "iniciada" : "encerrada"}`);
+  setTimeout(loadWsStatus, 1500);
+}
+
+async function wsRestartAll() {
+  const r = await api("/websocket/restart-all", "POST");
+  if (!r) return;
+  toast("WS PROXY, WSS TLS, WSS SSH e STUNNEL SSL reiniciados");
+  setTimeout(loadWsStatus, 1500);
+}
+
+async function wssAction(action) {
+  const port = parseInt(document.getElementById("wss-port").value, 10) || 8443;
+  const destPort = parseInt(document.getElementById("wss-dest").value, 10) || 22;
+  const body = action === "start" ? { port, dest: `127.0.0.1:${destPort}` } : { port };
+  const r = await api(`/wss/${action}`, "POST", body);
+  if (!r) return;
+  toast(`WSS TLS — porta ${port}: ${action === "start" ? "iniciada" : "encerrada"}`);
+  setTimeout(loadWsStatus, 1500);
+}
+
+async function wsssecAction(action) {
+  const port = parseInt(document.getElementById("wsssec-port").value, 10) || 8888;
+  const destPort = parseInt(document.getElementById("wsssec-dest").value, 10) || 22;
+  const body = action === "start" ? { port, dest: `127.0.0.1:${destPort}` } : { port };
+  const r = await api(`/wsssec/${action}`, "POST", body);
+  if (!r) return;
+  toast(`WSS SSH — porta ${port}: ${action === "start" ? "iniciada" : "encerrada"}`);
+  setTimeout(loadWsStatus, 1500);
+}
+
+async function stunnelAction(action) {
+  if (action === "stop") {
+    const r = await api("/stunnel/stop", "POST");
+    if (!r) return;
+    toast("STUNNEL SSL encerrado");
+    setTimeout(loadWsStatus, 1500);
+    return;
+  }
+  const port = parseInt(document.getElementById("stunnel-port").value, 10) || 2053;
+  const destPort = parseInt(document.getElementById("stunnel-dest").value, 10) || 22;
+  const r = await api("/stunnel/start", "POST", { port, dest: `127.0.0.1:${destPort}` });
+  if (!r) return;
+  toast(`STUNNEL SSL — porta ${port} → 127.0.0.1:${destPort}: iniciado`);
+  setTimeout(loadWsStatus, 1500);
+}
+
+async function loadBhttpStatus() {
+  const data = await api("/bhttp/status");
+  if (!data) return;
+  if (!data.installed) {
+    document.getElementById("ws-bhttp-val").innerHTML = '<span class="badge badge-danger">Não instalado</span>';
+    document.getElementById("ws-bhttp-service").textContent = "Reinstale o painel";
+    return;
+  }
+  document.getElementById("ws-bhttp-val").innerHTML = data.running
+    ? '<span class="badge badge-success">Ativa</span>' : '<span class="badge badge-danger">Inativa</span>';
+  document.getElementById("ws-bhttp-service").textContent = data.running
+    ? `📡 BHTTP ativo (HTTP ${data.http_port} / HTTPS ${data.https_port})`
+    : "Instalado, desativado";
+  if (!document.getElementById("bhttp-http-port").matches(":focus")) {
+    document.getElementById("bhttp-http-port").value = data.http_port;
+  }
+  if (!document.getElementById("bhttp-https-port").matches(":focus")) {
+    document.getElementById("bhttp-https-port").value = data.https_port;
+  }
+}
+
+async function bhttpAction(action) {
+  if (action === "stop") {
+    const r = await api("/bhttp/stop", "POST");
+    if (!r) return;
+    toast("Netsimon-BHTTP desativado");
+    setTimeout(loadBhttpStatus, 1500);
+    return;
+  }
+  const http_port = parseInt(document.getElementById("bhttp-http-port").value, 10) || 80;
+  const https_port = parseInt(document.getElementById("bhttp-https-port").value, 10) || 443;
+  const r = await api("/bhttp/start", "POST", { http_port, https_port });
+  if (!r) return;
+  toast(`Netsimon-BHTTP ativado — HTTP ${http_port} / HTTPS ${https_port}`);
+  setTimeout(loadBhttpStatus, 1500);
+}
+
+async function loadPortsReport() {
+  const dash = await api("/dashboard");
+  if (!dash) return;
+  const ports = dash.ports || [];
+  document.getElementById("ports-report").innerHTML = ports.length
+    ? `Portas em LISTEN no servidor: <span class="text-mono">${ports.join(", ")}</span>`
+    : "Nenhuma porta em LISTEN detectada.";
+}
+
+initPage();
+loadWsStatus();
+loadBhttpStatus();
+loadPortsReport();
+setInterval(loadWsStatus, 10000);
+setInterval(loadBhttpStatus, 10000);
+</script>
+</body>
+</html>

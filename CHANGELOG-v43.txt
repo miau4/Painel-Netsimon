@@ -1,0 +1,44 @@
+Painel Netsimon — v43
+======================
+Gerado a partir da v42. Item motivado por um incidente real de segurança
+em produção (setembro/2026): um minerador de criptomoeda entrou via força
+bruta de SSH numa conta de teste com senha previsível, disfarçado de
+processo do kernel ("ksmd"), consumindo ~92% da CPU do servidor -- foi
+isso que causou lentidão perceptível na tela inicial do painel, que foi
+como o problema foi notado e investigado manualmente pela primeira vez.
+
+1) Autodiagnóstico agora detecta e neutraliza ameaças de segurança
+   SOZINHO, sem esperar aprovação
+   Arquivos: painel_api.py, diagnostico.html
+   Nova varredura (security_watchdog_loop), rodando a cada 2 minutos
+   desde a inicialização do painel -- mais frequente que os outros
+   checks de saúde (10 min), porque uma ameaça ativa de CPU/mineração
+   piora rápido e pode passar despercebida num intervalo maior.
+   Detecta: (a) processos com nome reservado a threads reais do kernel
+   Linux (ksmd, kdevtmpfs, kswapd0, etc.) mas rodando com argumentos de
+   linha de comando ou executável real em disco -- uma thread de kernel
+   de verdade nunca tem isso; (b) diretórios ocultos (nome começando com
+   ponto) em /dev/shm ou /tmp pertencentes a contas de usuário comuns --
+   o esconderijo clássico desse tipo de ameaça.
+   Ao detectar, age IMEDIATAMENTE (novo tipo de causa "ameaca_seguranca"
+   sempre autorizado a auto-aplicar, em qualquer modo de automação):
+   mata o processo, apaga o diretório do payload, e trava a conta Linux
+   envolvida (exceto contas de sistema protegidas -- nunca root/www-data/
+   etc). Tudo registrado como incidente técnico em Diagnóstico >
+   Incidentes, com aviso por WhatsApp na hora.
+   O botão "Perguntar à IA" já existente nos incidentes agora reconhece
+   esse tipo de caso e recebe o contexto certo (processo, PID, hash do
+   binário, usuário envolvido, ações já tomadas) em vez do contexto
+   genérico de "serviço caiu".
+   NÃO mexe em como senhas de usuário são geradas/exigidas -- decisão
+   explícita do Simon, tratado como frente separada.
+
+2) fail2ban endurecido contra força bruta de SSH
+   Arquivo: install.sh
+   Antes: 5 tentativas / 10 min / banimento de só 10 min -- fraco
+   demais pro volume de tentativas que esse tipo de painel recebe (mais
+   de 16 mil tentativas de senha registradas historicamente num único
+   servidor de teste). Agora: 3 tentativas / 5 min / banimento de 1h,
+   dobrando a cada reincidência do mesmo IP (até 1 semana). Adicionado
+   também o jail "recidive", que bane por 1 SEMANA em todas as portas
+   quem já foi banido 3+ vezes em qualquer jail.

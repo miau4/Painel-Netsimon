@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem("ns_theme")==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Netsimon — Entrar</title>
+<link rel="icon" type="image/png" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg:       #050403;
+    --surface:  rgba(17,14,10,.72);
+    --border:   rgba(255,180,80,.18);
+    --accent:   #ff9d2e;
+    --accent2:  #ff5b1f;
+    --text:     #f3ede4;
+    --muted:    #a89e8c;
+    --danger:   #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Vídeo de fundo — sem som, em loop, cobrindo a tela toda */
+  .bg-video {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    opacity: .55;
+  }
+
+  .bg-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background:
+      radial-gradient(ellipse at center, rgba(5,4,3,.35) 0%, rgba(5,4,3,.85) 70%, rgba(5,4,3,.97) 100%);
+    pointer-events: none;
+  }
+
+  .bg-logo {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(90vw, 640px);
+    z-index: 1;
+    opacity: .16;
+    filter: drop-shadow(0 0 60px rgba(255,120,30,.25));
+    pointer-events: none;
+  }
+
+  .card {
+    position: relative;
+    z-index: 2;
+    background: var(--surface);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 44px 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 80px rgba(0,0,0,.6), 0 0 40px rgba(255,140,40,.06);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .logo-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .logo-icon img { width: 100%; height: 100%; object-fit: contain; }
+
+  .logo-text h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .logo-text span {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  .field { margin-bottom: 18px; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 8px;
+  }
+
+  input {
+    width: 100%;
+    background: rgba(0,0,0,.35);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color .2s;
+  }
+
+  input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(255,157,46,.12);
+  }
+
+  .btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 8px;
+    color: #1a0d00;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 13px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity .2s, transform .1s;
+  }
+
+  .btn:hover    { opacity: .92; }
+  .btn:active   { transform: scale(.98); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .error {
+    background: rgba(239,68,68,.12);
+    border: 1px solid rgba(239,68,68,.35);
+    border-radius: 8px;
+    color: #fca5a5;
+    font-size: 13px;
+    padding: 10px 14px;
+    margin-top: 16px;
+    display: none;
+  }
+
+  .footer {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<video class="bg-video" autoplay muted loop playsinline>
+  <source src="/img/painel_bg.mp4" type="video/mp4">
+</video>
+<img class="bg-logo" src="/img/logo.png" alt="">
+<div class="bg-overlay"></div>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon"><img src="/img/logo.png" alt="Painel Netsimon"></div>
+    <div class="logo-text">
+      <h1>Painel Netsimon</h1>
+    </div>
+  </div>
+
+  <h2>Entrar</h2>
+  <p class="subtitle">Acesso restrito a administradores e revendedores.</p>
+
+  <div class="field">
+    <label>Usuário</label>
+    <input type="text" id="username" autocomplete="username" placeholder="admin" />
+  </div>
+
+  <div class="field">
+    <label>Senha</label>
+    <input type="password" id="password" autocomplete="current-password" placeholder="••••••••" />
+  </div>
+
+  <button class="btn" id="btn-login">Entrar</button>
+  <div class="error" id="error-msg"></div>
+  <div class="error" id="renewal-box" style="display:none; text-align:center;">
+    <div style="margin-bottom:10px">⛔ Seu acesso de revendedor está suspenso ou vencido.</div>
+    <a id="renewal-link" href="#" target="_blank" style="display:inline-block; background:var(--accent); color:#1a0d00; font-weight:700; padding:9px 18px; border-radius:8px; text-decoration:none;">
+      Renovar via WhatsApp
+    </a>
+  </div>
+
+  <div class="footer">Painel Netsimon &mdash; Painel Web <span style="opacity:.6">v45</span></div>
+</div>
+
+<script>
+const API = "/api";
+
+async function doLogin() {
+  const btn = document.getElementById("btn-login");
+  const err = document.getElementById("error-msg");
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+
+  if (!username || !password) {
+    showError("Preencha todos os campos.");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Entrando…";
+  err.style.display = "none";
+
+  try {
+    const r = await fetch(`${API}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      if (data.suspended) {
+        showSuspendedRenewal(data.renew_url, data.expires);
+      } else {
+        showError(data.error || "Credenciais inválidas.");
+      }
+      return;
+    }
+    localStorage.setItem("ns_token", data.token);
+    localStorage.setItem("ns_role", data.role);
+    localStorage.setItem("ns_user", data.username);
+    window.location.href = "/dashboard.html";
+  } catch (e) {
+    showError("Erro de conexão. Tente novamente.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Entrar";
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById("error-msg");
+  el.textContent = msg;
+  el.style.display = "block";
+  document.getElementById("renewal-box").style.display = "none";
+}
+
+function showSuspendedRenewal(renewUrl, expires) {
+  document.getElementById("error-msg").style.display = "none";
+  const box = document.getElementById("renewal-box");
+  const link = document.getElementById("renewal-link");
+  link.href = renewUrl || "https://wa.me/5511997675068";
+  box.style.display = "block";
+}
+
+document.getElementById("btn-login").addEventListener("click", doLogin);
+document.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+
+// Redireciona se já logado
+(async () => {
+  const token = localStorage.getItem("ns_token");
+  if (!token) return;
+  try {
+    const r = await fetch(`${API}/auth/me`, { headers: { "X-Token": token } });
+    if (r.ok) window.location.href = "/dashboard.html";
+  } catch (_) {}
+})();
+</script>
+</body>
+</html>

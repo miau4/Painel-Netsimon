@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{if(localStorage.getItem("ns_theme")==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Netsimon — Revendedores</title>
+<link rel="icon" type="image/png" href="/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/painel.css?v=19">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="/dashboard.html" class="sidebar-logo" title="Início">
+      <div class="logo-icon"><img src="/img/logo.png" alt="Painel Netsimon"></div>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a href="/dashboard.html" class="nav-item active" data-page="dashboard">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-home.png" alt="Início"></span><span>Início</span>
+      </a>
+      <a href="/usuarios.html" class="nav-item" data-page="usuarios">
+        <span class="nav-icon">👤</span><span>Usuários</span>
+      </a>
+      <a href="/todos-usuarios.html" class="nav-item" data-page="todos-usuarios">
+        <span class="nav-icon">👥</span><span>Todos os Usuários</span>
+      </a>
+      <a href="/revendedores.html" class="nav-item reseller-manage-only" data-page="revendedores">
+        <span class="nav-icon">🏪</span><span>Revendedores</span>
+      </a>
+      <a href="/dispositivos.html" class="nav-item" data-page="dispositivos">
+        <span class="nav-icon">📵</span><span>Dispositivos</span>
+      </a>
+      <a href="/xray.html" class="nav-item admin-only" data-page="xray">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-xray.png" alt="Xray"></span><span>Xray</span>
+      </a>
+      <a href="/servidores.html" class="nav-item admin-only" data-page="servidores">
+        <span class="nav-icon">🖧</span><span>Servidores</span>
+      </a>
+      <a href="/diagnostico.html" class="nav-item" data-page="diagnostico">
+        <span class="nav-icon">🛠️</span><span>Manutenção</span>
+      </a>
+      <a href="/whatsapp.html" class="nav-item" data-page="whatsapp">
+        <span class="nav-icon nav-icon-img"><img src="/img/icon-whatsapp.png" alt="Bot WhatsApp"></span><span>Bot WhatsApp</span>
+      </a>
+      <a href="/campanhas.html" class="nav-item" data-page="campanhas">
+        <span class="nav-icon">📣</span><span>Campanhas</span>
+      </a>
+      <a href="/app.html" class="nav-item" data-page="app">
+        <span class="nav-icon">📱</span><span>Aplicativo</span>
+      </a>
+      <a href="/backup.html" class="nav-item admin-only" data-page="backup">
+        <span class="nav-icon">💾</span><span>Backup</span>
+      </a>
+      <a href="/bot.html" class="nav-item admin-only" data-page="bot">
+        <span class="nav-icon">🤖</span><span>Bot Telegram</span>
+      </a>
+      <a href="/logs.html" class="nav-item admin-only" data-page="logs">
+        <span class="nav-icon">📋</span><span>Logs</span>
+      </a>
+      <a href="#" class="nav-item admin-only" data-page="terminal" onclick="openTerminal(); return false;">
+        <span class="nav-icon">🖥️</span><span>Terminal</span>
+      </a>
+      <a href="/ia.html" class="nav-item" data-page="ia">
+        <span class="nav-icon">✨</span><span>IA</span>
+      </a>
+      <!-- Item 4: menu novo, exclusivo do admin (não é recurso por revendedor). -->
+      <a href="/material.html" class="nav-item admin-only" data-page="material">
+        <span class="nav-icon">🗃️</span><span>Material</span>
+      </a>
+      <a href="/configuracoes.html" class="nav-item admin-only" data-page="config">
+        <span class="nav-icon">⚙️</span><span>Configurações</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar">👑</span>
+        <div>
+          <div class="user-name" id="sidebar-username">–</div>
+          <div class="user-role" id="sidebar-role">–</div>
+        </div>
+      </div>
+      <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema" onclick="toggleTheme()">☀️</button>
+      <button class="btn-logout" id="btn-logout" title="Sair">⏻</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="burger" id="burger">☰</button>
+        <h1 class="page-title">Revendedores</h1>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-reseller')">+ Novo Revendedor</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="card-panel">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Revendedor</th>
+                <th>Nível</th>
+                <th>Status</th>
+                <th>Usuários</th>
+                <th>Sub-revendedores</th>
+                <th>Cota</th>
+                <th>Progresso</th>
+                <th>Validade</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="resellers-tbody">
+              <tr><td colspan="9" style="text-align:center;padding:32px;color:var(--muted)">Carregando…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal: Novo Revendedor -->
+<div class="modal-overlay" id="modal-reseller">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">🏪 Novo Revendedor</span>
+      <button class="modal-close" onclick="closeModal('modal-reseller')">×</button>
+    </div>
+    <p class="text-muted text-sm" style="margin:-4px 0 4px">Cada crédito equivale a 1 acesso. Um usuário criado com limite de 5 dispositivos consome 5 créditos da cota, não 1.</p>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Usuário de acesso</label>
+        <input type="text" id="r-username" placeholder="ex: revenda01">
+      </div>
+      <div class="form-field">
+        <label>Senha</label>
+        <input type="text" id="r-password" placeholder="senha de acesso ao painel">
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Cota de créditos (0 = ilimitado)</label>
+          <input type="number" id="r-quota" value="10" min="0">
+        </div>
+        <div class="form-field">
+          <label>Validade</label>
+          <input type="date" id="r-expires">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-reseller')">Cancelar</button>
+      <button class="btn btn-primary" onclick="createReseller()">Criar Revendedor</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Editar Revendedor (completo) -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">✏️ Editar Revendedor</span>
+      <button class="modal-close" onclick="closeModal('modal-edit')">×</button>
+    </div>
+    <div class="form-grid">
+      <input type="hidden" id="e-username">
+      <div class="form-field">
+        <label>Nova senha (deixe em branco para manter)</label>
+        <input type="text" id="e-password" placeholder="opcional">
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Cota de créditos (0 = ilimitado)</label>
+          <input type="number" id="e-quota" min="0">
+        </div>
+        <div class="form-field">
+          <label>Validade</label>
+          <input type="date" id="e-expires">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <div style="display:flex; gap:8px">
+        <button class="btn btn-danger btn-sm" id="btn-suspend" onclick="toggleSuspend()">⛔ Suspender</button>
+      </div>
+      <div style="display:flex; gap:8px">
+        <button class="btn btn-ghost" onclick="closeModal('modal-edit')">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveResellerEdit()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Boas-vindas pós-criação -->
+<div class="modal-overlay" id="modal-welcome">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <span class="modal-title">🎉 Revendedor criado!</span>
+      <button class="modal-close" onclick="closeModal('modal-welcome')">×</button>
+    </div>
+    <div id="welcome-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="copyWelcomeText()">📋 Copiar Tudo</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-welcome')">Concluir</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="/js/painel.js"></script>
+<script>
+let _welcomeText = "";
+
+function defaultExpiryDate() {
+  const d = new Date();
+  d.setDate(d.getDate() + 30);
+  return d.toISOString().split("T")[0];
+}
+document.getElementById("r-expires").value = defaultExpiryDate();
+
+async function loadResellers() {
+  const data = await api("/resellers");
+  if (!data) return;
+
+  const tbody = document.getElementById("resellers-tbody");
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--muted)">Nenhum revendedor cadastrado</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map(r => {
+    const used = r.quota_used ?? r.users;
+    const quotaText = r.quota === 0 ? "Ilimitado" : r.quota;
+    const pct = r.quota > 0 ? Math.min(100, Math.round((used / r.quota) * 100)) : 0;
+    const progressColor = pct > 90 ? "var(--danger)" : pct > 70 ? "var(--warning)" : "var(--accent)";
+    const nivelBadge = r.level === 2 ? '<span class="badge badge-warn">Nível 2</span>' : '<span class="badge badge-danger">Nível 3</span>';
+
+    let statusBadge;
+    if (r.suspended) statusBadge = '<span class="badge badge-danger">Suspenso</span>';
+    else if (r.expired) statusBadge = '<span class="badge badge-warn">Vencido</span>';
+    else statusBadge = '<span class="badge badge-success">Ativo</span>';
+
+    return `<tr>
+      <td><strong>${r.username}</strong></td>
+      <td>${nivelBadge}</td>
+      <td>${statusBadge}</td>
+      <td>${used}</td>
+      <td>${r.sub_resellers ?? 0}</td>
+      <td>${quotaText}</td>
+      <td style="min-width:140px">
+        ${r.quota > 0
+          ? `<div class="progress-bar" style="height:6px"><div class="progress-fill" style="width:${pct}%;background:${progressColor}"></div></div>`
+          : `<span class="text-muted text-sm">–</span>`}
+      </td>
+      <td class="text-sm text-muted">${fmtDate(r.expires)}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="impersonateReseller('${r.username}')" title="Entrar no painel deste revendedor">🔑 Entrar</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="renovarReseller('${r.username}')" title="Renovar +30 dias (reativa se estiver suspenso)">♻️</button>
+        <button class="btn btn-ghost btn-sm" onclick='editReseller(${JSON.stringify(r)})'>✏️ Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteReseller('${r.username}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join("");
+}
+
+// Item 14: entra no painel do revendedor já autenticado
+async function impersonateReseller(username) {
+  const r = await api(`/resellers/${username}/impersonate`, "POST");
+  if (!r || !r.token) return;
+  startImpersonation(r.token, r.username);
+}
+
+async function createReseller() {
+  const username = document.getElementById("r-username").value.trim();
+  const password = document.getElementById("r-password").value.trim();
+  const quota    = parseInt(document.getElementById("r-quota").value) || 0;
+  const expires  = document.getElementById("r-expires").value;
+
+  if (!username || !password) { toast("Preencha usuário e senha", true); return; }
+
+  const r = await api("/resellers", "POST", { username, password, quota, expires });
+  if (!r) return;
+  closeModal("modal-reseller");
+  document.getElementById("r-username").value = "";
+  document.getElementById("r-password").value = "";
+  document.getElementById("r-expires").value = defaultExpiryDate();
+  loadResellers();
+  showWelcome(username, password, quota, expires);
+}
+
+function showWelcome(username, password, quota, expires) {
+  const link = "painel.netsimon.fun";
+  const quotaText = quota === 0 ? "Ilimitado" : quota;
+  _welcomeText =
+`🎉 Bem-vindo ao Painel Netsimon!
+
+Seus dados de acesso ao painel de revendedor:
+
+Usuário: ${username}
+Senha: ${password}
+Cota de créditos: ${quotaText}
+Validade: ${fmtDate(expires)}
+
+Acesse pelo link: ${link}`;
+
+  document.getElementById("welcome-body").innerHTML = `
+    <div class="text-sm" style="margin-bottom:16px">Compartilhe estas informações com o revendedor:</div>
+    <div class="form-grid">
+      <div><div class="text-muted text-sm">Usuário</div><div class="text-mono" style="margin-top:2px">${username}</div></div>
+      <div><div class="text-muted text-sm">Senha</div><div class="text-mono" style="margin-top:2px">${password}</div></div>
+      <div class="form-row">
+        <div><div class="text-muted text-sm">Cota</div><div style="margin-top:2px">${quotaText}</div></div>
+        <div><div class="text-muted text-sm">Validade</div><div style="margin-top:2px">${fmtDate(expires)}</div></div>
+      </div>
+      <div class="form-field">
+        <label>Link de acesso ao painel</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input readonly value="${link}" style="font-family:monospace;font-size:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;flex:1">
+          <button class="btn btn-ghost btn-sm" onclick="copyText('${link}')">📋</button>
+        </div>
+      </div>
+    </div>
+  `;
+  openModal("modal-welcome");
+}
+
+function copyWelcomeText() {
+  copyText(_welcomeText);
+}
+
+async function renovarReseller(username) {
+  if (!confirm2(`Renovar o painel de "${username}" por +30 dias? Se estiver suspenso, também será reativado (ele e tudo que está abaixo dele).`)) return;
+  const r = await api(`/resellers/${username}/renovar`, "POST", { dias: 30 });
+  if (!r) return;
+  toast(`${username} renovado até ${fmtDate(r.expires)}!` + (r.reativado ? " (reativado)" : ""));
+  loadResellers();
+}
+
+async function deleteReseller(username) {
+  if (!confirm2(`Remover o revendedor "${username}"? Isso também remove TODOS os sub-revendedores e usuários dele em cascata.`)) return;
+  const r = await api(`/resellers/${username}`, "DELETE");
+  if (!r) return;
+  toast(`${username} removido!`);
+  loadResellers();
+}
+
+let _editingReseller = null;
+
+function editReseller(r) {
+  _editingReseller = r;
+  document.getElementById("e-username").value = r.username;
+  document.getElementById("e-password").value = "";
+  document.getElementById("e-quota").value = r.quota;
+  document.getElementById("e-expires").value = (r.expires || "").split(" ")[0];
+  const btnSuspend = document.getElementById("btn-suspend");
+  if (r.suspended) {
+    btnSuspend.textContent = "✅ Liberar";
+    btnSuspend.className = "btn btn-primary btn-sm";
+  } else {
+    btnSuspend.textContent = "⛔ Suspender";
+    btnSuspend.className = "btn btn-danger btn-sm";
+  }
+  openModal("modal-edit");
+}
+
+async function saveResellerEdit() {
+  const username = document.getElementById("e-username").value;
+  const password = document.getElementById("e-password").value.trim();
+  const quota    = parseInt(document.getElementById("e-quota").value) || 0;
+  const expires  = document.getElementById("e-expires").value;
+
+  const payload = { quota, expires };
+  if (password) payload.password = password;
+
+  const r = await api(`/resellers/${username}`, "PUT", payload);
+  if (!r) return;
+  toast("Revendedor atualizado!");
+  closeModal("modal-edit");
+  loadResellers();
+}
+
+async function toggleSuspend() {
+  if (!_editingReseller) return;
+  const username = _editingReseller.username;
+  const action = _editingReseller.suspended ? "activate" : "suspend";
+  const r = await api(`/resellers/${username}/${action}`, "POST");
+  if (!r) return;
+  toast(action === "suspend" ? `${username} suspenso — clientes bloqueados` : `${username} liberado — clientes reativados`);
+  closeModal("modal-edit");
+  loadResellers();
+}
+
+initPage();
+loadResellers();
+setInterval(loadResellers, 20000);
+</script>
+</body>
+</html>
